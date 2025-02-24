@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width-device-width, initial-scale=1.0">
+    <title>Chinook Album Search</title>
+</head>
+<body>
+    <h1>Search Albums in Chinook Database</h1>
+    <form method="POST" action="/">
+        <label for="search_term">Enter a track name:</label>
+        <input type="text" id="search_term" name="search_term" required>
+        <button type="submit">Search</button>
+    </form>
+
+    {% if results %}
+        <h2>Results</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Album Names</th>
+                    <th>Artists</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for track in results %}
+                    <tr>
+                        <td>{{ track[0] }}</td>
+                        <td>{{ track[1] or 'Unknown' }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No results found.</p>
+    {% endif %}
+</body>
+</html>

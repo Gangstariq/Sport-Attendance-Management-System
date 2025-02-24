@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width-device-width, initial-scale=1.0">
+    <title>Upload Student Records</title>
+</head>
+<body>
+    <h1>Upload Student records</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+          <label for="file">Select an Excel File to upload:</label>
+          <input type="file" name="file" id="file" accept=".xlsx" required>
+          <button type="submit">Upload</button>
+    </form>
+</body>
+</html>
