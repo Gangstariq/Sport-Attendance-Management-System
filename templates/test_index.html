@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width-device-width, initial-scale=1.0">
+    <title>Student Attendance Search</title>
+</head>
+<body>
+    <h1>Search A Specific Student's attendance history</h1>
+    <form method="POST" action="/test_index">
+        <label for="search_ID">Enter a students ID number:</label>
+        <input type="text" id="search_ID" name="search_ID" required>
+        <button type="submit">Search</button>
+    </form>
+
+    {% if results %}
+        <h2>Results</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Attendance</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in results %}
+                    <tr>
+                        <td>{{ student[0] }}</td>
+                        <td>{{ student[1] or 'Unknown' }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No results found.</p>
+    {% endif %}
+
+</body>
+</html>

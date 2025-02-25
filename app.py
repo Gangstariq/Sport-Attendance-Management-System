@@ -6,7 +6,7 @@ import process_excel_upload
 from openpyxl import load_workbook
 import plotly.graph_objs as go
 import plotly.io as pio
-import json
+import openpyxl
 app = Flask(__name__)
 
 app.config["DATABASE_PATH"] = os.path.join(app.root_path, "dataBase", "Chinook_Sqlite.sqlite")
@@ -28,6 +28,24 @@ def query_chinook_database(search_term):
     connection.close()
     return results
 
+def students_attendance(student_ID):
+    db_path = os.path.join(app.root_path, "dataBase", "students.db")
+    query = """
+            SELECT student_id, attendance, date
+            FROM attendance_records
+            WHERE student_id LIKE ?;
+        """
+#todo;Add more columns for the test_index (doing "date" rn)
+    connection = sqlite3.connect(db_path)
+    cursor = connection.cursor()
+    cursor.execute(query, (f"%{student_ID}%",)) # sql syntax for pattern matching anywhere,
+                                                            # passed as a single element tuple
+
+    results = cursor.fetchall()
+    connection.close()
+    return results
+
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
     results = []
@@ -37,18 +55,22 @@ def home():
     return render_template('index.html', results=results)
 
 
-@app.route('/get_attendance_data')
-def get_attendance_data():
-    conn = sqlite3.connect(app.config["students.db"])
-    cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT date, COUNT(*) as attendance_count 
-        FROM attendance_records 
-        WHERE attendance = 'Present' 
-        GROUP BY date 
-        ORDER BY date
-    """)
+@app.route('/test_index', methods=['GET', 'POST'])
+def test_index():
+    results = []
+    if request.method == 'POST':
+        search_ID = request.form.get('search_ID', '')
+        results = students_attendance(search_ID)
+    return render_template('test_index.html', results=results)
+
+
+
+
+
+
+
+
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
@@ -89,6 +111,13 @@ def upload_file():
             return jsonify({"success": "File data added to database"})
         return jsonify({"error": "Invalid file formate. Please upload an .xlsx file."})
     return jsonify({"error": "Invalid file formate. Please upload an .xlsx file."})
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
