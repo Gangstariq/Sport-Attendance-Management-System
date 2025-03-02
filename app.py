@@ -31,11 +31,11 @@ def query_chinook_database(search_term):
 def students_attendance(student_ID):
     db_path = os.path.join(app.root_path, "dataBase", "students.db")
     query = """
-            SELECT student_id, attendance, date
-            FROM attendance_records
-            WHERE student_id LIKE ?;
-        """
-#todo;Add more columns for the test_index (doing "date" rn)
+        SELECT student_id, activity, attendance, date
+        FROM attendance_records
+        WHERE student_id LIKE ?
+        ORDER BY date DESC;
+    """
     connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
     cursor.execute(query, (f"%{student_ID}%",)) # sql syntax for pattern matching anywhere,
@@ -54,19 +54,55 @@ def home():
         results = query_chinook_database(search_term)
     return render_template('index.html', results=results)
 
-
+#for my own reference
+# record[0] = student_id
+# record[1] = activity
+# record[2] = attendance (Present, Absent, late?)
+# record[3] = date
 
 @app.route('/test_index', methods=['GET', 'POST'])
 def test_index():
     results = []
+    graph_html = ""
     if request.method == 'POST':
         search_ID = request.form.get('search_ID', '')
         results = students_attendance(search_ID)
-    return render_template('test_index.html', results=results)
 
+    # creates attendence graph if we have data
+    if results:
+        #geets attendance data by date
+        dates = [record[3] for record in results] # date - referenced above "for my own reference"
+        statuses = [record[2] for record in results] # attendence
 
+        # makes bar chart data
+        attendance_count = {"Present": 0, "Explained absence": 0}
+        for status in statuses:
+            if status in attendance_count:  # Only count if it's one of the two statuses
+                attendance_count[status] += 1
 
+        # ploty graph creation
+        data = [
+            go.Bar(
+                x=list(attendance_count.keys()),
+                y=list(attendance_count.values()),
+                marker=dict(color=['green', 'red', 'orange'])
+            )
+        ]
+        #green = present
+        #red = away
+        #orange = late
 
+        #titlting for x and y axis and graph
+        layout = go.Layout(
+            title=f'Attendance Summary for Student {search_ID}', # title
+            xaxis=dict(title='Status'),
+            yaxis=dict(title='Count')
+        )
+
+        fig = go.Figure(data=data, layout=layout)
+        graph_html = fig.to_html(full_html=False)
+
+    return render_template('test_index.html', results=results, graph_html=graph_html) #converst graph to html graph
 
 
 

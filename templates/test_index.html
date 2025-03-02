@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width-device-width, initial-scale=1.0">
     <title>Student Attendance Search</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
     <h1>Search A Specific Student's attendance history</h1>
@@ -13,21 +14,29 @@
         <button type="submit">Search</button>
     </form>
 
+
+
     {% if results %}
-        <h2>Results</h2>
-        <table>
+        <h2>Attendance Summary</h2>
+        {{ graph_html | safe }}
+
+        <h2>Attendance Records</h2>
+        <table border="1">
             <thead>
                 <tr>
                     <th>Student ID</th>
+                    <th>Activity</th>
                     <th>Attendance</th>
                     <th>Date</th>
                 </tr>
             </thead>
             <tbody>
-                {% for student in results %}
+                {% for record in results %}
                     <tr>
-                        <td>{{ student[0] }}</td>
-                        <td>{{ student[1] or 'Unknown' }}</td>
+                        <td>{{ record[0] }}</td>
+                        <td>{{ record[1] }}</td>
+                        <td>{{ record[2] }}</td>
+                        <td>{{ record[3] }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -35,6 +44,5 @@
     {% else %}
         <p>No results found.</p>
     {% endif %}
-
 </body>
 </html>
