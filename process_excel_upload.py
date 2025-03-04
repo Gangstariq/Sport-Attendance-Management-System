@@ -1,7 +1,7 @@
 import sqlite3
 import os
 
-DATABASE = os.path.join('database', 'students.db')
+DATABASE = os.path.join('dataBase', 'students.db')
 
 def create_connection():
     conn = None
@@ -31,6 +31,7 @@ def create_tables():
                 activity TEXT NOT NULL,
                 attendance TEXT NOT NULL,
                 date TEXT NOT NULL,
+                year TEXT NOT NULL,
                 FOREIGN KEY (student_id) REFERENCES students(student_id)
             );
         ''')

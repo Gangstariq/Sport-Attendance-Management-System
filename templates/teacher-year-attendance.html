@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Year Attendance</title>
+</head>
+<body>
+    <h2>Search for Students by Year</h2>
+    <form method="POST" action="/teacher-year-attendance">
+        <label for="year_ID">Enter Year Group:</label>
+        <input type="text" id="year_ID" name="year_ID" placeholder="e.g., Year 10" required>
+        <button type="submit">Search</button>
+    </form>
+{{ graph_html | safe }}
+    <h3>Results:</h3>
+    {% if results %}
+    <table border="1">
+        <tr>
+            <th>Student ID</th>
+            <th>Year</th>
+            <th>Activity</th>
+            <th>Attendance</th>
+            <th>Date</th>
+        </tr>
+        {% for student in results %}
+        <tr>
+            <td>{{ student[0] }}</td>  <!-- student_id -->
+            <td>{{ student[1] }}</td>  <!-- year -->
+            <td>{{ student[2] }}</td>  <!-- activity -->
+            <td>{{ student[3] }}</td>  <!-- attendance -->
+            <td>{{ student[4] }}</td>  <!-- date -->
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No students found for this year group.</p>
+    {% endif %}
+</body>
+</html>
