@@ -12,6 +12,8 @@ from flask_oidc import OpenIDConnect
 #imports of other python functions:
 import process_excel_upload
 import attendance_queries
+from average_attendance_per_activity import activity_attendance
+
 
 
 app = Flask(__name__)
@@ -34,7 +36,6 @@ oidc = OpenIDConnect(app, prefix="/oidc/")
 @app.route('/daily-attendance-dashboard', methods=['GET', 'POST'])
 def daily_attendance_dashboard():
     results = []
-    graph_html = ""
     year_ID = ""
 
     if request.method == 'POST':
@@ -80,6 +81,65 @@ def daily_attendance_graph():
             graph_html = fig.to_html(full_html=False)
 
     return render_template('Teacher/daily-attendance-dashboard.html', results=results, graph_html=graph_html, year_ID=year_ID)
+
+
+
+
+
+
+@app.route('/average-attendance-per-activity', methods=['GET', 'POST'])
+def average_attendance_per_activity():
+    results = []
+    year_ID = ""
+
+    if request.method == 'POST':
+        year_ID = request.form.get('year_ID', '')
+        results = activity_attendance(year_ID)
+
+    return render_template('Teacher/average-attendance-per-activity.html', results=results, year_ID=year_ID)
+
+
+
+@app.route('/average-attendance-per-activity-graph', methods=['GET', 'POST'])
+def average_attendance_per_activity_graph():
+    results = []
+    graph_html = ""
+    year_ID = ""
+
+    if request.method == 'POST':
+        # Get the year_ID from the form input
+        year_ID = request.form.get('year_ID', '')
+        results = activity_attendance(year_ID)
+
+        if results:
+            activities = [record[0] for record in results]  # Activity names
+            attendance_percentages = [record[3] for record in results]  # Average attendance percentages
+
+            # Create Plotly Bar Graph for Average Attendance per Activity
+            fig = go.Figure()
+
+            fig.add_trace(go.Bar(x=activities, y=attendance_percentages, name="Average Attendance"))
+
+            # Layout Settings
+            fig.update_layout(
+                title=f'Average Attendance per Activity for {year_ID}',
+                xaxis_title='Activity',
+                yaxis_title='Average Attendance (%)',
+                xaxis_tickangle=-45  # Rotates the activity names for better visibility
+            )
+
+            graph_html = fig.to_html(full_html=False)
+
+    return render_template('Teacher/average-attendance-per-activity.html', results=results, graph_html=graph_html, year_ID=year_ID)
+
+
+
+
+
+
+
+
+
 
 
 
@@ -149,7 +209,7 @@ def home():
     if request.method == 'POST':
         search_term = request.form.get('search_term', '')
         results = query_chinook_database(search_term)
-    return render_template('index.html', results=results)
+    return render_template('teacher-home.html', results=results)
 
 
 

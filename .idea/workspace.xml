@@ -4,16 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7c5038e-5449-4d4a-8500-bea8b3624c70" name="Changes" comment="Implemented a method to check attendence for individual year groups. Started working on navigational features">
-      <change afterPath="$PROJECT_DIR$/attendance_queries.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client_secrets.json" afterDir="false" />
+    <list default="true" id="e7c5038e-5449-4d4a-8500-bea8b3624c70" name="Changes" comment="Implemeneted a daily attenance feature - shows attendance of each year for each day of training in table and line graph">
+      <change afterPath="$PROJECT_DIR$/average_attendance_per_activity.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Teacher/average-attendance-per-activity.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataBase/students.db" beforeDir="false" afterPath="$PROJECT_DIR$/dataBase/students.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Teacher/teacher-overall.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/individual_student_attendance.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Student access/individual_student_attendance.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/teacher-year-attendance.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/daily-attendance-dashboard.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,8 +21,8 @@
         <option value="Flask Main" />
         <option value="package.json" />
         <option value="CSS File" />
-        <option value="HTML File" />
         <option value="Python Script" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -178,7 +173,7 @@
       <workItem from="1741044092704" duration="17013000" />
       <workItem from="1741145741884" duration="1198000" />
       <workItem from="1741215046111" duration="551000" />
-      <workItem from="1741228043725" duration="5315000" />
+      <workItem from="1741228043725" duration="8770000" />
     </task>
     <task id="LOCAL-00001" summary="Inital Commit">
       <option name="closed" value="true" />
@@ -212,7 +207,15 @@
       <option name="project" value="LOCAL" />
       <updated>1741090145442</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Implemeneted a daily attenance feature - shows attendance of each year for each day of training in table and line graph">
+      <option name="closed" value="true" />
+      <created>1741233501619</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1741233501619</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -234,10 +237,11 @@
     <MESSAGE value="Displayed student date and id after taking in user input. put into a table" />
     <MESSAGE value="Implemented a graph using plotly aswell as fixed up tabling of previous attendance data" />
     <MESSAGE value="Implemented a method to check attendence for individual year groups. Started working on navigational features" />
-    <option name="LAST_COMMIT_MESSAGE" value="Implemented a method to check attendence for individual year groups. Started working on navigational features" />
+    <MESSAGE value="Implemeneted a daily attenance feature - shows attendance of each year for each day of training in table and line graph" />
+    <option name="LAST_COMMIT_MESSAGE" value="Implemeneted a daily attenance feature - shows attendance of each year for each day of training in table and line graph" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/DB_experiments$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1741228051714" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/DB_experiments$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1741235357301" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/DB_experiments$process_excel_upload.coverage" NAME="process_excel_upload Coverage Results" MODIFIED="1741085965568" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

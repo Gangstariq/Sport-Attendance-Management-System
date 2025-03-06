@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Average Attendance per Activity</title>
+</head>
+<body>
+    <h2>Search for Average Attendance by Year Group</h2>
+    <form method="POST" action="/average-attendance-per-activity-graph">
+        <label for="year_ID">Enter Year Group:</label>
+        <input type="text" id="year_ID" name="year_ID" placeholder="e.g., Year 10" required>
+        <button type="submit">Search</button>
+    </form>
+
+    <h3>Results:</h3>
+    {% if results %}
+    <table border="1">
+        <tr>
+            <th>Activity</th>
+            <th>Average Attendance (%)</th>
+        </tr>
+        {% for activity in results %}
+        <tr>
+            <td>{{ activity[0] }}</td>  <!-- Activity Name -->
+            <td>{{ activity[3] }}%</td>  <!-- Average Attendance -->
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No data found for this year group.</p>
+    {% endif %}
+
+    <!-- Display Graph -->
+    <div>
+        {{ graph_html | safe }}
+    </div>
+</body>
+</html>
