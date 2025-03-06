@@ -2,26 +2,110 @@ from flask import Flask, render_template, request, jsonify, session
 import sqlite3
 import os
 from werkzeug.utils import secure_filename
-import process_excel_upload
 from openpyxl import load_workbook
 import plotly.graph_objs as go
 import plotly.io as pio
 import openpyxl
 from flask_oidc import OpenIDConnect
 
+
+#imports of other python functions:
+import process_excel_upload
+import attendance_queries
+
+
 app = Flask(__name__)
 app.secret_key = "hgytdytdtrds324strcd"
 
-app.config["DATABASE_PATH"] = os.path.join(app.root_path, "dataBase", "Chinook_Sqlite.sqlite")
+app.config["DATABASE_PATH"] = os.path.join(app.root_path, "dataBase")
+
+
 
 #copied auth code for sbhs login page
 app.config["OIDC_CLIENT_SECRETS"] = "client_secrets.json"
 # This HAS to match the registered scopes
 app.config["OIDC_SCOPES"] = "openid profile"
-
 # Prefix the routes added by this library to prevent any
 # collisions with our routes.
 oidc = OpenIDConnect(app, prefix="/oidc/")
+
+
+#TEACHER ROUTING FUNCTIONS (ALL LINK TO A .PY FUNCTION)
+@app.route('/daily-attendance-dashboard', methods=['GET', 'POST'])
+def daily_attendance_dashboard():
+    results = []
+    graph_html = ""
+    year_ID = ""
+
+    if request.method == 'POST':
+        year_ID = request.form.get('year_ID', '')
+        results = attendance_queries.daily_attendance_summary(year_ID)  # Call function from external file
+
+    return render_template('Teacher/daily-attendance-dashboard.html', results=results, year_ID=year_ID)
+
+
+@app.route('/daily-attendance-dashboard-graph', methods=['GET', 'POST'])
+def daily_attendance_graph():
+    results = []
+    graph_html = ""
+    year_ID = ""
+
+    if request.method == 'POST':
+        # Get the year_ID from the form input
+        year_ID = request.form.get('year_ID', '')
+        results = attendance_queries.daily_attendance_summary(year_ID)  # Fetch data from DB
+
+        if results:
+            # Extract data for the graph
+            dates = [record[0] for record in results]  # Date column
+            present_counts = [record[1] for record in results]  # Present students count
+            explained_abs_counts = [record[2] for record in results]  # Explained absences
+            unexplained_abs_counts = [record[3] for record in results]  # Unexplained absences
+
+            # Create Plotly Line Graph
+            fig = go.Figure()
+
+            fig.add_trace(go.Scatter(x=dates, y=present_counts, mode='lines+markers', name="Present", line=dict(color='green')))
+            fig.add_trace(go.Scatter(x=dates, y=explained_abs_counts, mode='lines+markers', name="Explained Absence", line=dict(color='orange')))
+            fig.add_trace(go.Scatter(x=dates, y=unexplained_abs_counts, mode='lines+markers', name="Unexplained Absence", line=dict(color='red')))
+
+            # Layout Settings
+            fig.update_layout(
+                title=f'Daily Attendance Trends for {year_ID}',
+                xaxis_title='Date',
+                yaxis_title='Number of Students',
+                xaxis=dict(type='category')  # Ensures dates display properly
+            )
+
+            graph_html = fig.to_html(full_html=False)
+
+    return render_template('Teacher/daily-attendance-dashboard.html', results=results, graph_html=graph_html, year_ID=year_ID)
+
+
+
+
+def sport_attendance_by_year(year_ID):
+    db_path = os.path.join(app.root_path, "dataBase", "students.db")
+    query = f"""
+            SELECT DISTINCT student_id, year, activity, attendance, date
+            FROM attendance_records
+            WHERE year = ?;
+        """
+    connection = sqlite3.connect(db_path)
+    cursor = connection.cursor()
+
+    cursor.execute(query, (str(year_ID),))  # Ensure year_ID is a string
+    results = cursor.fetchall()
+
+    connection.close()  # Always close the database connection
+    return results
+
+
+
+
+
+
+
 
 @app.route("/student-only-page")
 def student_only_page():
@@ -41,26 +125,6 @@ def student_only_page():
 
 #end of copied auth code
 
-def query_chinook_database(search_term):
-    db_path = os.path.join(app.root_path, "dataBase", "Chinook_Sqlite.sqlite")
-    query = """
-        SELECT Album.Title, Artist.Name
-        FROM Album
-        JOIN Artist ON Album.ArtistId = Artist.ArtistId
-        WHERE Album.Title LIKE ?;
-    """
-    connection = sqlite3.connect(db_path)
-    cursor = connection.cursor()
-    cursor.execute(query, (f"%{search_term}%",)) # sql syntax for pattern matching anywhere,
-                                                            # passed as a single element tuple
-
-    results = cursor.fetchall()
-    connection.close()
-    return results
-
-
-
-
 
 def students_attendance(student_ID):
     db_path = os.path.join(app.root_path, "dataBase", "students.db")
@@ -79,7 +143,6 @@ def students_attendance(student_ID):
     return results
 
 
-#todo implement the sport attendeance by year
 @app.route('/', methods=['GET', 'POST'])
 def home():
     results = []
@@ -138,69 +201,9 @@ def individual_student_attendance():
         fig = go.Figure(data=data, layout=layout)
         graph_html = fig.to_html(full_html=False)
 
-    return render_template('individual_student_attendance.html', results=results, graph_html=graph_html) #converst graph to html graph
+    return render_template('Student access/individual_student_attendance.html', results=results, graph_html=graph_html) #converst graph to html graph
 
 
-def sport_attendance_by_year(year_ID):
-    db_path = os.path.join(app.root_path, "dataBase", "students.db")
-    query = f"""
-            SELECT DISTINCT student_id, year, activity, attendance, date
-            FROM attendance_records
-            WHERE year = ?;
-        """
-    connection = sqlite3.connect(db_path)
-    cursor = connection.cursor()
-
-    cursor.execute(query, (str(year_ID),))  # Ensure year_ID is a string
-    results = cursor.fetchall()
-
-    connection.close()  # Always close the database connection
-    return results
-
-
-@app.route('/teacher-year-attendance', methods=['GET', 'POST'])
-def year_attendance():
-    results = []
-    graph_html = ""
-
-    if request.method == 'POST':
-        # Get the year_ID from the form input
-        year_ID = request.form.get('year_ID', '')
-        results = sport_attendance_by_year(year_ID)
-
-        # Create the attendance graph if we have data
-        if results:
-            # Extract attendance statuses
-            statuses = [record[3] for record in results]  # Attendance status is at index 3
-
-            # Count attendance statuses
-            attendance_count = {"Present": 0, "Explained absence": 0, "Unexplained absence": 0}
-            for status in statuses:
-                if status in attendance_count:
-                    attendance_count[status] += 1
-
-            # Create Plotly bar chart
-            data = [
-                go.Bar(
-                    x=list(attendance_count.keys()),
-                    y=list(attendance_count.values()),
-                    marker=dict(color=['green', 'orange', 'red'])
-                )
-            ]
-
-            # Set graph layout
-            layout = go.Layout(
-                title=f'Attendance Summary for {year_ID}',
-                xaxis=dict(title='Attendance Status'),
-                yaxis=dict(title='Number of Students')
-            )
-
-            # Generate the graph
-            fig = go.Figure(data=data, layout=layout)
-            graph_html = fig.to_html(full_html=False)
-
-    # Render the template with results and graph
-    return render_template('teacher-year-attendance.html', results=results, graph_html=graph_html, year_ID=year_ID)
 
 
 @app.route('/upload', methods=['GET', 'POST'])
@@ -226,6 +229,8 @@ def upload_file():
             wb = load_workbook(os.path.join('uploads', filename))
             sheet = wb.active
 
+            process_excel_upload.create_tables()
+
             conn = process_excel_upload.create_connection()
             cursor = conn.cursor()
 
@@ -250,9 +255,78 @@ def upload_file():
             conn.commit()
             conn.close()
 
+
             return jsonify({"success": "File data added to database"})
         return jsonify({"error": "Invalid file format. Please upload an .xlsx file."})
     return jsonify({"error": "Invalid file format. Please upload an .xlsx file."})
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+#
+# @app.route('/teacher-year-attendance', methods=['GET', 'POST'])
+# def year_attendance():
+#     results = []
+#     graph_html = ""
+#     year_ID = ""
+#
+#     if request.method == 'POST':
+#         # Get the year_ID from the form input
+#         year_ID = request.form.get('year_ID', '')
+#         results = sport_attendance_by_year(year_ID)
+#
+#         # Create the attendance graph if we have data
+#         if results:
+#             # Extract attendance statuses
+#             statuses = [record[3] for record in results]  # Attendance status is at index 3
+#
+#             # Count attendance statuses
+#             attendance_count = {"Present": 0, "Explained absence": 0, "Unexplained absence": 0}
+#             for status in statuses:
+#                 if status in attendance_count:
+#                     attendance_count[status] += 1
+#
+#             # Create Plotly bar chart
+#             data = [
+#                 go.Bar(
+#                     x=list(attendance_count.keys()),
+#                     y=list(attendance_count.values()),
+#                     marker=dict(color=['green', 'orange', 'red'])
+#                 )
+#             ]
+#
+#             # Set graph layout
+#             layout = go.Layout(
+#                 title=f'Attendance Summary for {year_ID}',
+#                 xaxis=dict(title='Attendance Status'),
+#                 yaxis=dict(title='Number of Students')
+#             )
+#
+#             # Generate the graph
+#             fig = go.Figure(data=data, layout=layout)
+#             graph_html = fig.to_html(full_html=False)    # Render the template with results and graph
+#     return render_template('daily-attendance-dashboard.html', results=results, graph_html=graph_html, year_ID=year_ID)
+#
+
