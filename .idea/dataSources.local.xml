@@ -1,19 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="dataSourceStorageLocal" created-in="PY-242.20224.347">
-    <data-source name="Chinook_Sqlite" uuid="01c27d00-50f6-4e15-9295-98a41dd748a8">
-      <database-info product="SQLite" version="3.45.1" jdbc-version="4.2" driver-name="SQLite JDBC" driver-version="3.45.1.0" dbms="SQLITE" exact-version="3.45.1" exact-driver-version="3.45">
-        <identifier-quote-string>&quot;</identifier-quote-string>
-      </database-info>
-      <case-sensitivity plain-identifiers="mixed" quoted-identifiers="mixed" />
-      <auth-provider>no-auth</auth-provider>
-      <schema-mapping>
-        <introspection-scope>
-          <node kind="schema" qname="@" />
-        </introspection-scope>
-      </schema-mapping>
-    </data-source>
-    <data-source name="students" uuid="e569a3ed-5e19-41d9-bbcc-28c1e58aa69e">
+  <component name="dataSourceStorageLocal" created-in="PY-242.23726.102">
+    <data-source name="students.db" uuid="c2506d59-6467-4c66-891c-7a8d9a28414e">
       <database-info product="SQLite" version="3.45.1" jdbc-version="4.2" driver-name="SQLite JDBC" driver-version="3.45.1.0" dbms="SQLITE" exact-version="3.45.1" exact-driver-version="3.45">
         <identifier-quote-string>&quot;</identifier-quote-string>
       </database-info>

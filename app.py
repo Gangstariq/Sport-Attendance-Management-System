@@ -4,6 +4,7 @@ import os
 from werkzeug.utils import secure_filename
 from openpyxl import load_workbook
 import plotly.graph_objs as go
+import datetime
 import plotly.io as pio
 import openpyxl
 from flask_oidc import OpenIDConnect
@@ -137,7 +138,21 @@ def average_attendance_per_activity_graph():
 
 
 
+def students_attendance(student_ID):
+    db_path = os.path.join(app.root_path, "dataBase", "students.db")
+    query = """
+        SELECT DISTINCT student_id, activity, attendance, date
+        FROM attendance_records
+        WHERE student_id LIKE ?;
+    """
+    connection = sqlite3.connect(db_path)
+    cursor = connection.cursor()
+    cursor.execute(query, (f"%{student_ID}%",)) # sql syntax for pattern matching anywhere,
+                                                            # passed as a single element tuple
 
+    results = cursor.fetchall()
+    connection.close()
+    return results
 
 
 
@@ -186,30 +201,13 @@ def student_only_page():
 #end of copied auth code
 
 
-def students_attendance(student_ID):
-    db_path = os.path.join(app.root_path, "dataBase", "students.db")
-    query = """
-        SELECT DISTINCT student_id, activity, attendance, date
-        FROM attendance_records
-        WHERE student_id LIKE ?;
-    """
-    connection = sqlite3.connect(db_path)
-    cursor = connection.cursor()
-    cursor.execute(query, (f"%{student_ID}%",)) # sql syntax for pattern matching anywhere,
-                                                            # passed as a single element tuple
 
-    results = cursor.fetchall()
-    connection.close()
-    return results
 
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    results = []
-    if request.method == 'POST':
-        search_term = request.form.get('search_term', '')
-        results = query_chinook_database(search_term)
-    return render_template('teacher-home.html', results=results)
+
+    return render_template('home.html')
 
 
 
@@ -264,6 +262,7 @@ def individual_student_attendance():
     return render_template('Student access/individual_student_attendance.html', results=results, graph_html=graph_html) #converst graph to html graph
 
 
+def normalize_and_insert_data():
 
 
 @app.route('/upload', methods=['GET', 'POST'])
@@ -301,15 +300,26 @@ def upload_file():
                  secondary, email, team, activity, session, date, start_time, end_time, session_staff, attendance,
                  for_fixture, flags, cancelled) = row
 
-
+                cursor.execute('''
+                        INSERT INTO staging_full_data (
+                            student_id, student_name, year, boarder, house, homeroom, campus, gender, birthdate,
+                            secondary, email, team, activity, session, date, start_time, end_time, session_staff,
+                            attendance, for_fixture, flags, cancelled
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ''', (
+                    student_id, student_name, year, boarder, house, homeroom, campus, gender, birthdate,
+                    secondary, email, team, activity, session, date, start_time, end_time, session_staff,
+                    attendance, for_fixture, flags, cancelled
+                ))
+                #todo: add datetime for when each record is uploaded
 
                 # Insert the attendance record
 
-                cursor.execute('''
-                    INSERT INTO attendance_records (student_id, activity, attendance, date, year)
-                    VALUES (?, ?, ?, ?, ?)
-                ''', (student_id, activity, attendance, date, year))
-
+                # cursor.execute('''
+                #     INSERT INTO attendance_records (student_id, activity, attendance, date, year)
+                #     VALUES (?, ?, ?, ?, ?)
+                # ''', (student_id, activity, attendance, date, year))
+                #
 
 
             conn.commit()
