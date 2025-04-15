@@ -310,7 +310,14 @@ def normalize_and_insert_data():
 
         team_key = (team, activity, team_year, team_semester)
         if team_key not in team_cache:
-            #todo: logic to add teams to the team sql table
+            # What i did : logic to add teams to the team sql table
+            cursor.execute('''
+                INSERT INTO teams (team_name, activity, semester, year)
+                VALUES (?, ?, ?, ?)
+            ''', (team, activity, team_semester, team_year))
+
+            conn.commit()
+            team_cache.add(team_key)
 
     #establish which students are enrolled in which teams (enrollment table)
 
