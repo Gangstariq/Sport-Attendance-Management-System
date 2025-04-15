@@ -81,7 +81,7 @@ def create_tables():
                 house TEXT NOT NULL,
                 homeroom TEXT NOT NULL,
                 campus TEXT,
-                gender TEXT NOT NULL CHECK (gender IN ('Male', 'Female')),
+                gender TEXT NOT NULL CHECK (gender IN ('male', 'female')),
                 birth_date TEXT NOT NULL,
                 email TEXT NOT NULL
             );
@@ -127,8 +127,6 @@ def create_tables():
                 FOREIGN KEY (enrollment_id) REFERENCES enrollments(enrollment_id)
             );
         ''')
-
-        conn.commit()
         conn.close()
 
 # Create the tables

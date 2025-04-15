@@ -14,8 +14,7 @@ from flask_oidc import OpenIDConnect
 import process_excel_upload
 import attendance_queries
 from average_attendance_per_activity import activity_attendance
-
-
+from process_excel_upload import create_connection
 
 app = Flask(__name__)
 app.secret_key = "hgytdytdtrds324strcd"
@@ -263,8 +262,61 @@ def individual_student_attendance():
 
 
 def normalize_and_insert_data():
+    conn = create_connection()
+    cursor = conn.cursor()
 
+    #important to order by date so that we read the most recent records first
+    cursor.execute('SELECT * FROM staging_full_data ORDER BY date DESC')
+    rows = cursor.fetchall()
 
+    student_cache = set()
+    team_cache = set()
+    enrollment_cache = set()
+
+    #iterate through each row of data
+    for row in rows:
+        (
+            student_id, full_name, year, boarder, house, homeroom,
+            campus, gender, birthdate, secondary, email, team, activity,
+            session, date, start_time, end_time, session_staff, attendance,
+            for_fixture, flags, cancelled
+        ) = row
+
+        # add all unique students to the student table
+        if student_id not in student_cache:
+            #write this student into the student table
+            cursor.execute('''
+                INSERT INTO students (student_id, full_name, 
+                year_group, is_boarder, house, homeroom, 
+                campus, gender, birth_date, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (student_id, full_name,
+                year, boarder, house, homeroom,
+                campus, gender, birthdate, email))
+
+            conn.commit()
+
+            #put the student ID into the cache so that we dont write this student again
+            student_cache.add(student_id)
+
+        # add all unique teams to the team table
+        team_semester = None
+        team_year = None
+        date_converted = datetime.datetime.strptime(date, '%d %b %Y')
+        team_year = date_converted.year
+        if date_converted.month <= 6:
+            team_semester = 1
+        else:
+            team_semester = 2
+
+        team_key = (team, activity, team_year, team_semester)
+        if team_key not in team_cache:
+            #todo: logic to add teams to the team sql table
+
+    #establish which students are enrolled in which teams (enrollment table)
+
+    #capture attendance for each session (attendance_record table)
+
+    conn.close()
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'GET':
@@ -321,10 +373,10 @@ def upload_file():
                 # ''', (student_id, activity, attendance, date, year))
                 #
 
-
             conn.commit()
             conn.close()
 
+            normalize_and_insert_data()
 
             return jsonify({"success": "File data added to database"})
         return jsonify({"error": "Invalid file format. Please upload an .xlsx file."})
