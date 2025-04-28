@@ -120,7 +120,7 @@ def create_tables():
                 start_time TEXT NOT NULL, -- need to think about making a formatting constraint for this
                 end_time TEXT NOT NULL, -- need to think about making a formatting constraint for this
                 staff TEXT,
-                attendance_status TEXT NOT NULL CHECK (attendance_status IN ('Present', 'Absent', 'Explained')),
+                attendance_status TEXT NOT NULL CHECK (attendance_status IN ('Present', 'Unexplained absence', 'Explained absence')),
                 is_fixture TEXT NOT NULL CHECK (is_fixture IN ('Yes', 'No')),
                 has_flags TEXT CHECK (has_flags IN ('Yes', 'No')),
                 is_cancelled TEXT NOT NULL CHECK (is_cancelled IN ('Yes', 'No')),

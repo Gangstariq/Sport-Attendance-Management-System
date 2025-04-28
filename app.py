@@ -276,12 +276,13 @@ def normalize_and_insert_data():
     student_cache = set()
     team_cache = set()
     enrollment_cache = set()
+    attendance_cache = set()
 
 
     #iterate through each row of data
     for row in rows:
         (
-            student_id, full_name, year, boarder, house, homeroom,
+            full_name, student_id, year, boarder, house, homeroom,
             campus, gender, birthdate, secondary, email, team, activity,
             session, date, start_time, end_time, session_staff, attendance,
             for_fixture, flags, cancelled
@@ -306,7 +307,7 @@ def normalize_and_insert_data():
         # add all unique teams to the team table
         team_semester = None
         team_year = None
-        date_converted = datetime.datetime.strptime(date, '%d %b %Y')
+        date_converted = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
         team_year = date_converted.year
         if date_converted.month <= 6:
             team_semester = 1
@@ -323,27 +324,55 @@ def normalize_and_insert_data():
 
             conn.commit()
             team_cache.add(team_key)
-        #wasnt too sure if this was done correctly, used abit of chatgpt to help me understand what logic flow
-        # # find team_id
-        # cursor.execute('''
-        #     SELECT team_id FROM teams
-        #     WHERE team_name = ? AND activity = ? AND semester = ? AND year = ?
-        # ''', (team, activity, team_semester, team_year))
-        #
-        # team_id_row = cursor.fetchone()
-        # if team_id_row:
-        #     team_id = team_id_row[0]
-        #
-        #     # create enrollment if not already done
-        #     enrollment_key = (student_id, team_id)
-        #     if enrollment_key not in enrollment_cache:
-        #         cursor.execute('''
-        #             INSERT INTO enrollments (student_id, team_id)
-        #             VALUES (?, ?)
-        #         ''', (student_id, team_id))
 
-            # conn.commit()
-            # enrollment_cache.add(enrollment_key)
+        # find team_id
+        cursor.execute('''
+            SELECT team_id FROM teams
+            WHERE team_name = ? AND activity = ? AND semester = ? AND year = ?
+        ''', (team, activity, team_semester, team_year))
+
+        team_id = None
+        team_row = cursor.fetchone()
+        if team_row:
+            team_id = team_row[0]
+
+            # create enrollment if not already done
+            enrollment_key = (student_id, team_id)
+            if enrollment_key not in enrollment_cache:
+                cursor.execute('''
+                    INSERT INTO enrollments (student_id, team_id)
+                    VALUES (?, ?)
+                ''', (student_id, team_id))
+
+            conn.commit()
+            enrollment_cache.add(enrollment_key)
+
+        # find enrollment_id
+        cursor.execute('''
+                SELECT enrollment_id FROM enrollments
+                WHERE student_id = ? AND team_id = ?
+            ''', (student_id, team_id))
+
+        enrollment_row = cursor.fetchone()
+        if enrollment_row:
+            enrollment_id = enrollment_row[0]
+
+            # create start_datetime by combining date + start_time, might be unneccesary
+            date_part = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S').date()
+            start_time_part = datetime.datetime.strptime(start_time, '%I:%M%p').time()
+            end_time_part = datetime.datetime.strptime(end_time, '%I:%M%p').time()
+            start_datetime = datetime.datetime.combine(date_part, start_time_part)
+            end_datetime = datetime.datetime.combine(date_part, end_time_part)
+
+            attendance_key = (enrollment_id, start_datetime)
+            if attendance_key not in attendance_cache:
+                cursor.execute('''
+                                INSERT INTO attendance_records (enrollment_id, session_name, session_date, start_time, end_time, staff, attendance_status, is_fixture, has_flags, is_cancelled)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            ''', (enrollment_id, session, date, start_datetime, end_datetime, session_staff, attendance, for_fixture, flags, cancelled))
+
+            conn.commit()
+            attendance_cache.add(attendance_key)
 
     #establish which students are enrolled in which teams (enrollment table)
 
