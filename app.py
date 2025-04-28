@@ -265,13 +265,18 @@ def normalize_and_insert_data():
     conn = create_connection()
     cursor = conn.cursor()
 
+
+
     #important to order by date so that we read the most recent records first
     cursor.execute('SELECT * FROM staging_full_data ORDER BY date DESC')
     rows = cursor.fetchall()
 
+
+
     student_cache = set()
     team_cache = set()
     enrollment_cache = set()
+
 
     #iterate through each row of data
     for row in rows:
@@ -318,27 +323,27 @@ def normalize_and_insert_data():
 
             conn.commit()
             team_cache.add(team_key)
-#wasnt too sure if this was done correctly, used abit of chatgpt to help me understand what logic flow
-        # find team_id
-        cursor.execute('''
-            SELECT team_id FROM teams
-            WHERE team_name = ? AND activity = ? AND semester = ? AND year = ?
-        ''', (team, activity, team_semester, team_year))
+        #wasnt too sure if this was done correctly, used abit of chatgpt to help me understand what logic flow
+        # # find team_id
+        # cursor.execute('''
+        #     SELECT team_id FROM teams
+        #     WHERE team_name = ? AND activity = ? AND semester = ? AND year = ?
+        # ''', (team, activity, team_semester, team_year))
+        #
+        # team_id_row = cursor.fetchone()
+        # if team_id_row:
+        #     team_id = team_id_row[0]
+        #
+        #     # create enrollment if not already done
+        #     enrollment_key = (student_id, team_id)
+        #     if enrollment_key not in enrollment_cache:
+        #         cursor.execute('''
+        #             INSERT INTO enrollments (student_id, team_id)
+        #             VALUES (?, ?)
+        #         ''', (student_id, team_id))
 
-        team_id_row = cursor.fetchone()
-        if team_id_row:
-            team_id = team_id_row[0]
-
-            # create enrollment if not already done
-            enrollment_key = (student_id, team_id)
-            if enrollment_key not in enrollment_cache:
-                cursor.execute('''
-                    INSERT INTO enrollments (student_id, team_id)
-                    VALUES (?, ?)
-                ''', (student_id, team_id))
-
-                conn.commit()
-                enrollment_cache.add(enrollment_key)
+            # conn.commit()
+            # enrollment_cache.add(enrollment_key)
 
     #establish which students are enrolled in which teams (enrollment table)
 
@@ -368,12 +373,21 @@ def upload_file():
             wb = load_workbook(os.path.join('uploads', filename))
             sheet = wb.active
 
-            process_excel_upload.create_tables()
+
 
             conn = process_excel_upload.create_connection()
             cursor = conn.cursor()
 
             # Iterate over the rows (skipping header row)
+            cursor.execute('DROP TABLE if exists staging_full_data')
+            cursor.execute('DROP TABLE if exists students')
+            cursor.execute('DROP TABLE if exists teams')
+            cursor.execute('DROP TABLE if exists enrollments')
+            cursor.execute('DROP TABLE if exists attendance_records')
+
+            conn.commit()
+
+            process_excel_upload.create_tables()
 
             for row in sheet.iter_rows(min_row=2, values_only=True):
                 (student_id, student_name, year, boarder, house, homeroom, campus, gender, birthdate,
