@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7c5038e-5449-4d4a-8500-bea8b3624c70" name="Changes" comment="Inserted data into normalised student table and started inserting into team table. Semester convertor also created">
+    <list default="true" id="e7c5038e-5449-4d4a-8500-bea8b3624c70" name="Changes" comment="Created logic for inserting teams into team sql table">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -136,7 +135,9 @@
       <workItem from="1744625374009" duration="4221000" />
       <workItem from="1744629913180" duration="1935000" />
       <workItem from="1744696925343" duration="3742000" />
-      <workItem from="1744700684293" duration="5535000" />
+      <workItem from="1744700684293" duration="5678000" />
+      <workItem from="1744765038825" duration="1195000" />
+      <workItem from="1745833599610" duration="639000" />
     </task>
     <task id="LOCAL-00001" summary="Inital Commit">
       <option name="closed" value="true" />
@@ -170,7 +171,15 @@
       <option name="project" value="LOCAL" />
       <updated>1744702511277</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Created logic for inserting teams into team sql table">
+      <option name="closed" value="true" />
+      <created>1744725658230</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1744725658230</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -192,7 +201,8 @@
     <MESSAGE value="Displayed student date and id after taking in user input. put into a table" />
     <MESSAGE value="Created normalised tables and created a staged table of the excel data" />
     <MESSAGE value="Inserted data into normalised student table and started inserting into team table. Semester convertor also created" />
-    <option name="LAST_COMMIT_MESSAGE" value="Inserted data into normalised student table and started inserting into team table. Semester convertor also created" />
+    <MESSAGE value="Created logic for inserting teams into team sql table" />
+    <option name="LAST_COMMIT_MESSAGE" value="Created logic for inserting teams into team sql table" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/DB_experiments$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1740913494608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

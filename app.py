@@ -318,6 +318,27 @@ def normalize_and_insert_data():
 
             conn.commit()
             team_cache.add(team_key)
+#wasnt too sure if this was done correctly, used abit of chatgpt to help me understand what logic flow
+        # find team_id
+        cursor.execute('''
+            SELECT team_id FROM teams
+            WHERE team_name = ? AND activity = ? AND semester = ? AND year = ?
+        ''', (team, activity, team_semester, team_year))
+
+        team_id_row = cursor.fetchone()
+        if team_id_row:
+            team_id = team_id_row[0]
+
+            # create enrollment if not already done
+            enrollment_key = (student_id, team_id)
+            if enrollment_key not in enrollment_cache:
+                cursor.execute('''
+                    INSERT INTO enrollments (student_id, team_id)
+                    VALUES (?, ?)
+                ''', (student_id, team_id))
+
+                conn.commit()
+                enrollment_cache.add(enrollment_key)
 
     #establish which students are enrolled in which teams (enrollment table)
 
