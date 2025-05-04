@@ -9,14 +9,17 @@ def daily_attendance_summary(year_ID):
     #AS present_count just sets it to like a variable ot make it easier ot reference and renames it
     #CAST converts the date into an integer so its like ordered correctly
     query = """
-        SELECT DISTINCT date, 
-               SUM(CASE WHEN attendance = 'Present' THEN 1 ELSE 0 END) AS present_count,
-               SUM(CASE WHEN attendance = 'Explained absence' THEN 1 ELSE 0 END) AS explained_absence_count,
-               SUM(CASE WHEN attendance = 'Unexplained absence' THEN 1 ELSE 0 END) AS unexplained_absence_count
-        FROM attendance_records
-        WHERE year = ?
-        GROUP BY date
-        ORDER BY CAST(date AS integer) ASC; 
+        SELECT DISTINCT session_date, 
+               SUM(CASE WHEN attendance_status = 'Present' THEN 1 ELSE 0 END) AS present_count,
+               SUM(CASE WHEN attendance_status = 'Explained absence' THEN 1 ELSE 0 END) AS explained_absence_count,
+               SUM(CASE WHEN attendance_status = 'Unexplained absence' THEN 1 ELSE 0 END) AS unexplained_absence_count
+        FROM attendance_records, students, enrollments
+        JOIN enrollments ON attendance_records.enrollment_id = enrollments.enrollment_id
+        JOIN students ON enrollments.student_id = students.student_id
+        WHERE 
+        WHERE year_group = ?
+        GROUP BY session_date
+        ORDER BY CAST(session_date AS integer) ASC; 
     """
     connection = sqlite3.connect(DB_PATH)
     cursor = connection.cursor()

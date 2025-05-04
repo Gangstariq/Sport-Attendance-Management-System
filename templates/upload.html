@@ -1,16 +1,128 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width-device-width, initial-scale=1.0">
-    <title>Upload Student Records</title>
-</head>
-<body>
-    <h1>Upload Student records</h1>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-          <label for="file">Select an Excel File to upload:</label>
-          <input type="file" name="file" id="file" accept=".xlsx" required>
-          <button type="submit">Upload</button>
-    </form>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Upload Attendance Data{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0"><i class="fas fa-upload me-2"></i>Upload Attendance Data</h2>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Upload Excel files (.xlsx) containing student attendance records. The system will process and normalize the data automatically.
+                </div>
+
+                <form action="/upload" method="post" enctype="multipart/form-data" class="mt-4">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Select an Excel File to upload:</label>
+                        <input class="form-control" type="file" name="file" id="file" accept=".xlsx" required>
+                        <div class="form-text">Only .xlsx files are supported</div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-cloud-upload-alt me-2"></i>Upload File
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4" id="uploadStatus" style="display: none;">
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0"><i class="fas fa-check-circle me-2"></i>Upload Status</h3>
+            </div>
+            <div class="card-body">
+                <div id="statusMessage"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); //prevents the page from reloading on post
+
+            // read the form fields and saving in a vairable
+            const formData = new FormData(form);
+
+            // getting a reference to the submit button
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            // Change button to loading state
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Uploading...';
+            submitBtn.disabled = true;
+
+            // submit the form using javascript so it uploads without reloading the page
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json()) // read the form response
+            .then(data => { // data is the response data
+                // Show status card
+                const statusCard = document.getElementById('uploadStatus');
+                const statusMessage = document.getElementById('statusMessage');
+
+                // make the display status visible to show upload success or failure
+                statusCard.style.display = 'block';
+
+                if (data.success) {
+                    statusCard.querySelector('.card-header').className = 'card-header bg-success text-white';
+                    statusMessage.innerHTML = `<div class="alert alert-success mb-0">
+                        <i class="fas fa-check-circle me-2"></i>${data.success}
+                    </div>`;
+                } else {
+                    statusCard.querySelector('.card-header').className = 'card-header bg-danger text-white';
+                    statusMessage.innerHTML = `<div class="alert alert-danger mb-0">
+                        <i class="fas fa-times-circle me-2"></i>${data.error}
+                    </div>`;
+                }
+
+                // Reset button state
+                submitBtn.innerHTML = '<i class="fas fa-cloud-upload-alt me-2"></i>Upload File';
+                submitBtn.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const statusCard = document.getElementById('uploadStatus');
+                const statusMessage = document.getElementById('statusMessage');
+                statusCard.style.display = 'block';
+                statusCard.querySelector('.card-header').className = 'card-header bg-danger text-white';
+                statusMessage.innerHTML = `<div class="alert alert-danger mb-0">
+                    <i class="fas fa-times-circle me-2"></i>An error occurred during upload. Please try again.
+                </div>`;
+
+                // Reset button state
+                submitBtn.innerHTML = '<i class="fas fa-cloud-upload-alt me-2"></i>Upload File';
+                submitBtn.disabled = false;
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+
+
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <meta name="viewport" content="width-device-width, initial-scale=1.0">#}
+{#    <title>Upload Student Records</title>#}
+{#</head>#}
+{#<body>#}
+{#    <h1>Upload Student records</h1>#}
+{#    <form action="/upload" method="post" enctype="multipart/form-data">#}
+{#          <label for="file">Select an Excel File to upload:</label>#}
+{#          <input type="file" name="file" id="file" accept=".xlsx" required>#}
+{#          <button type="submit">Upload</button>#}
+{#    </form>#}
+{#</body>#}
+{#</html>#}

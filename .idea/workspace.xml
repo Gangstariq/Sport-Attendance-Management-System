@@ -4,10 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7c5038e-5449-4d4a-8500-bea8b3624c70" name="Changes" comment="Created logic for inserting teams into team sql table">
+    <list default="true" id="e7c5038e-5449-4d4a-8500-bea8b3624c70" name="Changes" comment="Populated teams table, enrolments table and attendance table from the staging table">
+      <change afterPath="$PROJECT_DIR$/console_1.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/css/style.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/attendance_queries.py" beforeDir="false" afterPath="$PROJECT_DIR$/attendance_queries.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/average_attendance_per_activity.py" beforeDir="false" afterPath="$PROJECT_DIR$/average_attendance_per_activity.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/process_excel_upload.py" beforeDir="false" afterPath="$PROJECT_DIR$/process_excel_upload.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Student access/individual_student_attendance.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Student access/individual_student_attendance.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Teacher/daily-attendance-dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/daily-attendance-dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/upload.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/upload.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,6 +29,7 @@
       <list>
         <option value="Flask Main" />
         <option value="Python Script" />
+        <option value="CSS File" />
         <option value="HTML File" />
       </list>
     </option>
@@ -67,7 +78,8 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/tariq/PycharmProjects/DB experiments/templates&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/tariq/PycharmProjects/DB-Demo-Website&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -86,6 +98,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\tariq\PycharmProjects\DB-Demo-Website" />
       <recent name="C:\Users\tariq\PycharmProjects\DB experiments\templates" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -140,7 +153,10 @@
       <workItem from="1744700684293" duration="5678000" />
       <workItem from="1744765038825" duration="1195000" />
       <workItem from="1745833599610" duration="2609000" />
-      <workItem from="1745836227849" duration="4325000" />
+      <workItem from="1745836227849" duration="5715000" />
+      <workItem from="1745844025379" duration="1562000" />
+      <workItem from="1746359614240" duration="8031000" />
+      <workItem from="1746367692764" duration="1326000" />
     </task>
     <task id="LOCAL-00001" summary="Inital Commit">
       <option name="closed" value="true" />
@@ -198,7 +214,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745836212217</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Populated teams table, enrolments table and attendance table from the staging table">
+      <option name="closed" value="true" />
+      <created>1745840625475</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1745840625475</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -221,10 +245,11 @@
     <MESSAGE value="Created normalised tables and created a staged table of the excel data" />
     <MESSAGE value="Inserted data into normalised student table and started inserting into team table. Semester convertor also created" />
     <MESSAGE value="Created logic for inserting teams into team sql table" />
-    <option name="LAST_COMMIT_MESSAGE" value="Created logic for inserting teams into team sql table" />
+    <MESSAGE value="Populated teams table, enrolments table and attendance table from the staging table" />
+    <option name="LAST_COMMIT_MESSAGE" value="Populated teams table, enrolments table and attendance table from the staging table" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/DB_experiments$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1740913494608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/DB_Demo_Website$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1745838242164" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/DB_Demo_Website$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1746367943665" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

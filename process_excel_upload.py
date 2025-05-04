@@ -122,7 +122,7 @@ def create_tables():
                 staff TEXT,
                 attendance_status TEXT NOT NULL CHECK (attendance_status IN ('Present', 'Unexplained absence', 'Explained absence')),
                 is_fixture TEXT NOT NULL CHECK (is_fixture IN ('Yes', 'No')),
-                has_flags TEXT CHECK (has_flags IN ('Yes', 'No')),
+                has_flags TEXT,
                 is_cancelled TEXT NOT NULL CHECK (is_cancelled IN ('Yes', 'No')),
                 FOREIGN KEY (enrollment_id) REFERENCES enrollments(enrollment_id)
             );

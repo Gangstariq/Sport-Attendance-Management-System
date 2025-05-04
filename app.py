@@ -139,10 +139,15 @@ def average_attendance_per_activity_graph():
 
 def students_attendance(student_ID):
     db_path = os.path.join(app.root_path, "dataBase", "students.db")
-    query = """
-        SELECT DISTINCT student_id, activity, attendance, date
-        FROM attendance_records
-        WHERE student_id LIKE ?;
+    query = f"""
+        SELECT DISTINCT students.student_id, teams.team_name, activity, attendance_status, session_date
+        FROM students, attendance_records, enrollments, teams
+
+        WHERE students.student_id == enrollments.student_id
+        AND enrollments.team_id == teams.team_id
+        AND enrollments.enrollment_id == attendance_records.enrollment_id
+        AND students.student_id like ?
+        order by students.student_id, session_date, team_name, activity
     """
     connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
@@ -154,21 +159,22 @@ def students_attendance(student_ID):
     return results
 
 
-
-
-
-
 def sport_attendance_by_year(year_ID):
     db_path = os.path.join(app.root_path, "dataBase", "students.db")
     query = f"""
-            SELECT DISTINCT student_id, year, activity, attendance, date
-            FROM attendance_records
-            WHERE year = ?;
+            SELECT DISTINCT students.student_id, students.year_group, teams.activity, attendance_records.attendance_status, attendance_records.session_date
+            FROM students, attendance_records, enrollments, teams
+
+            WHERE students.student_id = enrollments.student_id
+            AND enrollments.team_id = teams.team_id
+            AND enrollments.enrollment_id = attendance_records.enrollment_id
+            AND students.year_group LIKE ?
+
         """
     connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
 
-    cursor.execute(query, (str(year_ID),))  # Ensure year_ID is a string
+    cursor.execute(query, (f"%{year_ID}%",))  # Ensure year_ID is a string
     results = cursor.fetchall()
 
     connection.close()  # Always close the database connection
@@ -205,7 +211,6 @@ def student_only_page():
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-
     return render_template('home.html')
 
 
@@ -220,15 +225,16 @@ def individual_student_attendance():
 
     # for my own reference
     # record[0] = student_id
-    # record[1] = activity
-    # record[2] = attendance (Present, Absent, late?)
-    # record[3] = date
+    # record[1] = team
+    # record[2] = activity
+    # record[3] = attendance (Present, Absent, late?)
+    # record[4] = date
 
     # creates attendence graph if we have data
     if results:
         #gets attendance data by date
-        dates = [record[3] for record in results] # date - referenced above "for my own reference"
-        statuses = [record[2] for record in results] # attendence
+        dates = [record[4] for record in results] # date - referenced above "for my own reference"
+        statuses = [record[3] for record in results] # attendence
 
         # makes bar chart data
         attendance_count = {"Present": 0, "Explained absence": 0, "Unexplained absence": 0}
@@ -385,6 +391,7 @@ def upload_file():
         return render_template('upload.html')
 
     if request.method == 'POST':
+
         if 'file' not in request.files:
             return jsonify({'error': 'No file part'})
 
