@@ -4,21 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7c5038e-5449-4d4a-8500-bea8b3624c70" name="Changes" comment="Populated teams table, enrolments table and attendance table from the staging table">
-      <change afterPath="$PROJECT_DIR$/console_1.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/css/style.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/attendance_queries.py" beforeDir="false" afterPath="$PROJECT_DIR$/attendance_queries.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/average_attendance_per_activity.py" beforeDir="false" afterPath="$PROJECT_DIR$/average_attendance_per_activity.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/process_excel_upload.py" beforeDir="false" afterPath="$PROJECT_DIR$/process_excel_upload.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Student access/individual_student_attendance.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Student access/individual_student_attendance.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Teacher/daily-attendance-dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/daily-attendance-dashboard.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/upload.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/upload.html" afterDir="false" />
-    </list>
+    <list default="true" id="e7c5038e-5449-4d4a-8500-bea8b3624c70" name="Changes" comment="Created Base template, worked on css + styling, started fixing all my querys to match my new normalised ata base" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -156,7 +142,7 @@
       <workItem from="1745836227849" duration="5715000" />
       <workItem from="1745844025379" duration="1562000" />
       <workItem from="1746359614240" duration="8031000" />
-      <workItem from="1746367692764" duration="1326000" />
+      <workItem from="1746367692764" duration="1759000" />
     </task>
     <task id="LOCAL-00001" summary="Inital Commit">
       <option name="closed" value="true" />
@@ -222,7 +208,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745840625475</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Created Base template, worked on css + styling, started fixing all my querys to match my new normalised ata base">
+      <option name="closed" value="true" />
+      <created>1746369238669</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1746369238669</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -246,7 +240,8 @@
     <MESSAGE value="Inserted data into normalised student table and started inserting into team table. Semester convertor also created" />
     <MESSAGE value="Created logic for inserting teams into team sql table" />
     <MESSAGE value="Populated teams table, enrolments table and attendance table from the staging table" />
-    <option name="LAST_COMMIT_MESSAGE" value="Populated teams table, enrolments table and attendance table from the staging table" />
+    <MESSAGE value="Created Base template, worked on css + styling, started fixing all my querys to match my new normalised ata base" />
+    <option name="LAST_COMMIT_MESSAGE" value="Created Base template, worked on css + styling, started fixing all my querys to match my new normalised ata base" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/DB_experiments$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1740913494608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
