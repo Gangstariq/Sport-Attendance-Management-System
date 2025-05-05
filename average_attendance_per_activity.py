@@ -8,18 +8,33 @@ DB_PATH = os.path.join(os.path.dirname(__file__), "dataBase", "students.db")
 
 def activity_attendance(year_ID):
     query = """
-        SELECT DISTINCT activity,
-               COUNT(CASE WHEN attendance = 'Present' THEN 1 END) AS present_count,
-               COUNT(*) AS total_sessions,
-               (CAST(COUNT(CASE WHEN attendance = 'Present' THEN 1 END) AS FLOAT) / COUNT(*)) * 100 AS average_attendance_percentage
-        FROM attendance_records
-        WHERE year = ?
-        GROUP BY activity
-        ORDER BY average_attendance_percentage DESC;
-    """
+            SELECT 
+                teams.activity,
+                COUNT(DISTINCT students.student_id) AS total_students,
+                SUM(CASE WHEN attendance_records.attendance_status = 'Present' THEN 1 ELSE 0 END) AS present_count,
+                ROUND(
+                    (SUM(CASE WHEN attendance_records.attendance_status = 'Present' THEN 1 ELSE 0 END) * 100.0) / 
+                    COUNT(attendance_records.attendance_status)
+                , 1) AS attendance_percentage
+            FROM 
+                attendance_records
+            JOIN 
+                enrollments ON attendance_records.enrollment_id = enrollments.enrollment_id
+            JOIN 
+                students ON enrollments.student_id = students.student_id
+            JOIN 
+                teams ON enrollments.team_id = teams.team_id
+            WHERE 
+                students.year_group = ?
+            GROUP BY 
+                teams.activity
+            ORDER BY 
+                attendance_percentage DESC
+        """
     connection = sqlite3.connect(DB_PATH)
     cursor = connection.cursor()
-    cursor.execute(query, (str(year_ID),))
+    # Using parameterized query prevents SQL injection
+    cursor.execute(query, (year_ID,))
     results = cursor.fetchall()
     connection.close()
     return results

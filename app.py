@@ -83,10 +83,6 @@ def daily_attendance_graph():
     return render_template('Teacher/daily-attendance-dashboard.html', results=results, graph_html=graph_html, year_ID=year_ID)
 
 
-
-
-
-
 @app.route('/average-attendance-per-activity', methods=['GET', 'POST'])
 def average_attendance_per_activity():
     results = []
@@ -99,7 +95,6 @@ def average_attendance_per_activity():
     return render_template('Teacher/average-attendance-per-activity.html', results=results, year_ID=year_ID)
 
 
-
 @app.route('/average-attendance-per-activity-graph', methods=['GET', 'POST'])
 def average_attendance_per_activity_graph():
     results = []
@@ -109,6 +104,9 @@ def average_attendance_per_activity_graph():
     if request.method == 'POST':
         # Get the year_ID from the form input
         year_ID = request.form.get('year_ID', '')
+        # Sanitize input to prevent injection
+        year_ID = year_ID.strip()
+
         results = activity_attendance(year_ID)
 
         if results:
@@ -130,11 +128,11 @@ def average_attendance_per_activity_graph():
 
             graph_html = fig.to_html(full_html=False)
 
-    return render_template('Teacher/average-attendance-per-activity.html', results=results, graph_html=graph_html, year_ID=year_ID)
+    return render_template('Teacher/average-attendance-per-activity.html', results=results, graph_html=graph_html,
+                           year_ID=year_ID)
 
 
 
-//testing
 
 
 def students_attendance(student_ID):
@@ -146,7 +144,7 @@ def students_attendance(student_ID):
         WHERE students.student_id == enrollments.student_id
         AND enrollments.team_id == teams.team_id
         AND enrollments.enrollment_id == attendance_records.enrollment_id
-        AND students.student_id like ?
+        AND students.student_id = ?
         order by students.student_id, session_date, team_name, activity
     """
     connection = sqlite3.connect(db_path)
@@ -265,6 +263,21 @@ def individual_student_attendance():
         graph_html = fig.to_html(full_html=False)
 
     return render_template('Student access/individual_student_attendance.html', results=results, graph_html=graph_html) #converst graph to html graph
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def normalize_and_insert_data():
