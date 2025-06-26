@@ -8,13 +8,15 @@ import datetime
 import plotly.io as pio
 import openpyxl
 from flask_oidc import OpenIDConnect
-
+from flask import Flask, redirect, url_for
 
 #imports of other python functions:
 import process_excel_upload
 import attendance_queries
 from average_attendance_per_activity import activity_attendance
 from process_excel_upload import create_connection
+from dashboard_data import get_student_dashboard_data, get_teacher_dashboard_data
+
 
 app = Flask(__name__)
 app.secret_key = "hgytdytdtrds324strcd"
@@ -31,8 +33,44 @@ app.config["OIDC_SCOPES"] = "openid profile"
 # collisions with our routes.
 oidc = OpenIDConnect(app, prefix="/oidc/")
 
+#Routing:
+@app.route('/teacher-dashboard')
+def teacher_dashboard():
+    # if not oidc.user_loggedin:
+    #     return redirect("/")
+    #
+    # oidc_profile = session.get("oidc_auth_profile")
+    # if "student_id" in oidc_profile:
+    #     return redirect("/student-dashboard")  # Wrong user type
+    #
+    # # Get teacher info from profile
+    # teacher_name = oidc_profile.get('name', 'Teacher')
+    #
+    # # Get real data from database
+    dashboard_data = get_teacher_dashboard_data()
+
+    return render_template('Teacher/teacher-dashboard.html',
+                           # teacher_name=teacher_name,
+                           **dashboard_data)
+
 
 #TEACHER ROUTING FUNCTIONS (ALL LINK TO A .PY FUNCTION)
+
+# @app.route('/teacher-dashboard')
+# def teacher_dashboard():
+#     if not oidc.user_loggedin:
+#         return redirect("/")
+#
+#     oidc_profile = session.get("oidc_auth_profile")
+#     if "student_id" in oidc_profile:
+#         return redirect("/student-dashboard")  # Wrong user type
+#
+#     # Get teacher info from profile
+#     teacher_name = oidc_profile.get('name', 'Teacher')
+#
+#     return render_template('Teacher/teacher-dashboard.html',
+#                            teacher_name=teacher_name)
+
 @app.route('/daily-attendance-dashboard', methods=['GET', 'POST'])
 def daily_attendance_dashboard():
     results = []
@@ -185,33 +223,62 @@ def sport_attendance_by_year(year_ID):
 
 
 
-@app.route("/student-only-page")
-def student_only_page():
-	if oidc.user_loggedin:
-		oidc_profile = session["oidc_auth_profile"]
-
-		# Teachers can potentially log in through the school's OIDC server
-		# as well, but we only want students.
-		if "student_id" not in oidc_profile:
-			return "SBHS account must be for a student.", 401
-
-		return f"Hello, {oidc_profile['student_id']}!"
-	else:
-		# The argument to this function is what route we want the user to be
-		# returned to after completing the login. In this case, this page.
-		return oidc.redirect_to_auth_server("/student-only-page")
+# @app.route("/student-only-page")
+# def student_only_page():
+# 	if oidc.user_loggedin:
+# 		oidc_profile = session["oidc_auth_profile"]
+#
+# 		# Teachers can potentially log in through the school's OIDC server
+# 		# as well, but we only want students.
+# 		if "student_id" not in oidc_profile:
+# 			return "SBHS account must be for a student.", 401
+#
+# 		return f"Hello, {oidc_profile['student_id']}!"
+# 	else:
+# 		# The argument to this function is what route we want the user to be
+# 		# returned to after completing the login. In this case, this page.
+# 		return oidc.redirect_to_auth_server("/student-only-page")
 
 #end of copied auth code
 
 
+@app.route("/student-only-page")
+def student_login_redirect():
+    if oidc.user_loggedin:
+        oidc_profile = session.get("oidc_auth_profile")
+
+        # Teachers can potentially log in through the school's OIDC server
+        # as well, but we only want students.
+        if oidc_profile:
+            # Check if user is a student
+            if "student_id" in oidc_profile:
+                return redirect("/student-dashboard")
+            else:
+                # Teacher/staff redirect
+                return redirect("/teacher-dashboard")
+    else:
+        # Redirect to  login, then come back to home page
+        return oidc.redirect_to_auth_server("/")
 
 
+@app.route('/student-dashboard')
+def student_dashboard():
+    if not oidc.user_loggedin:
+        return redirect("/")
 
-@app.route('/', methods=['GET', 'POST'])
-def home():
-    return render_template('home.html')
+    oidc_profile = session.get("oidc_auth_profile")
+    if "student_id" not in oidc_profile:
+        return redirect("/teacher-dashboard")  # Wrong user type
 
+    # Get student info from profile
+    student_id = oidc_profile.get('student_id', 'Unknown')
 
+    # Get real data from database
+    dashboard_data = get_student_dashboard_data(student_id)
+
+    return render_template('Student access/student-dashboard.html',
+                           student_id=student_id,
+                           **dashboard_data)
 
 @app.route('/individual_student_attendance', methods=['GET', 'POST'])
 def individual_student_attendance():

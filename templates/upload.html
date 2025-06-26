@@ -15,14 +15,27 @@
                     Upload Excel files (.xlsx) containing student attendance records. The system will process and normalize the data automatically.
                 </div>
 
-                <form action="/upload" method="post" enctype="multipart/form-data" class="mt-4">
+                <form id="upload-form" enctype="multipart/form-data" class="mt-4">
                     <div class="mb-3">
                         <label for="file" class="form-label">Select an Excel File to upload:</label>
                         <input class="form-control" type="file" name="file" id="file" accept=".xlsx" required>
                         <div class="form-text">Only .xlsx files are supported</div>
                     </div>
+
+                    <!-- Real Progress Bar (hidden initially) -->
+                    <div id="progress-container" class="mb-3" style="display: none;">
+                        <label class="form-label">Upload Progress:</label>
+                        <div class="progress">
+                            <div id="upload-progress" class="progress-bar progress-bar-striped progress-bar-animated"
+                                 role="progressbar" style="width: 0%">
+                                <span id="progress-text">0%</span>
+                            </div>
+                        </div>
+                        <small class="text-muted">Please wait while your file is being uploaded and processed...</small>
+                    </div>
+
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" id="upload-btn">
                             <i class="fas fa-cloud-upload-alt me-2"></i>Upload File
                         </button>
                     </div>
@@ -44,85 +57,129 @@
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('form');
-        form.addEventListener('submit', function(e) {
-            e.preventDefault(); //prevents the page from reloading on post
+document.getElementById('upload-form').addEventListener('submit', function(e) {
+    e.preventDefault(); // Stop the form from submitting normally
 
-            // read the form fields and saving in a vairable
-            const formData = new FormData(form);
+    // Get the file input element
+    const fileInput = document.getElementById('file');
+    const file = fileInput.files[0]; // Get the selected file
 
-            // getting a reference to the submit button
-            const submitBtn = form.querySelector('button[type="submit"]');
+    // Check if a file was actually selected
+    if (!file) {
+        alert('Please select a file first!');
+        return;
+    }
 
-            // Change button to loading state
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Uploading...';
-            submitBtn.disabled = true;
+    // Get references to all the HTML elements we need to update
+    const uploadBtn = document.getElementById('upload-btn');
+    const progressContainer = document.getElementById('progress-container');
+    const progressBar = document.getElementById('upload-progress');
+    const progressText = document.getElementById('progress-text');
+    const statusCard = document.getElementById('uploadStatus');
+    const statusMessage = document.getElementById('statusMessage');
 
-            // submit the form using javascript so it uploads without reloading the page
-            fetch('/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json()) // read the form response
-            .then(data => { // data is the response data
-                // Show status card
-                const statusCard = document.getElementById('uploadStatus');
-                const statusMessage = document.getElementById('statusMessage');
+    // Hide any previous status messages
+    statusCard.style.display = 'none';
 
-                // make the display status visible to show upload success or failure
-                statusCard.style.display = 'block';
+    // Show the progress bar
+    progressContainer.style.display = 'block';
 
-                if (data.success) {
+    // Disable the upload button so user can't click it again
+    uploadBtn.disabled = true;
+    uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Uploading...';
+
+    // Create FormData object to send the file
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Create XMLHttpRequest (this is what actually sends the file)
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/upload', true); // Tell it to POST to /upload
+
+    // This function runs every time some of the file gets uploaded
+    xhr.upload.onprogress = function(event) {
+        if (event.lengthComputable) { // Make sure we can calculate progress
+            // Calculate what percentage has been uploaded
+            const percent = Math.round((event.loaded / event.total) * 100);
+
+            // Update the progress bar
+            progressBar.style.width = percent + '%';
+            progressText.textContent = percent + '%';
+
+            console.log('Upload progress: ' + percent + '%'); // For debugging
+        }
+    };
+
+    // This function runs when the upload is completely finished
+    xhr.onload = function() {
+        // Reset the button
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = '<i class="fas fa-cloud-upload-alt me-2"></i>Upload File';
+
+        // Hide the progress bar
+        progressContainer.style.display = 'none';
+
+        // Show the status card
+        statusCard.style.display = 'block';
+
+        if (xhr.status === 200) { // 200 means success
+            try {
+                // Try to read the response from the server
+                const response = JSON.parse(xhr.responseText);
+
+                if (response.success) {
+                    // Success!
                     statusCard.querySelector('.card-header').className = 'card-header bg-success text-white';
-                    statusMessage.innerHTML = `<div class="alert alert-success mb-0">
-                        <i class="fas fa-check-circle me-2"></i>${data.success}
-                    </div>`;
+                    statusMessage.innerHTML = `
+                        <div class="alert alert-success mb-0">
+                            <i class="fas fa-check-circle me-2"></i>${response.success}
+                        </div>`;
+
+                    // Clear the file input
+                    fileInput.value = '';
+
                 } else {
+                    // Server returned an error message
                     statusCard.querySelector('.card-header').className = 'card-header bg-danger text-white';
-                    statusMessage.innerHTML = `<div class="alert alert-danger mb-0">
-                        <i class="fas fa-times-circle me-2"></i>${data.error}
-                    </div>`;
+                    statusMessage.innerHTML = `
+                        <div class="alert alert-danger mb-0">
+                            <i class="fas fa-times-circle me-2"></i>${response.error}
+                        </div>`;
                 }
-
-                // Reset button state
-                submitBtn.innerHTML = '<i class="fas fa-cloud-upload-alt me-2"></i>Upload File';
-                submitBtn.disabled = false;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                const statusCard = document.getElementById('uploadStatus');
-                const statusMessage = document.getElementById('statusMessage');
-                statusCard.style.display = 'block';
+            } catch (e) {
+                // Couldn't read the server response
                 statusCard.querySelector('.card-header').className = 'card-header bg-danger text-white';
-                statusMessage.innerHTML = `<div class="alert alert-danger mb-0">
-                    <i class="fas fa-times-circle me-2"></i>An error occurred during upload. Please try again.
+                statusMessage.innerHTML = `
+                    <div class="alert alert-danger mb-0">
+                        <i class="fas fa-times-circle me-2"></i>Upload completed but received unexpected response.
+                    </div>`;
+            }
+        } else {
+            // Server returned an error status code
+            statusCard.querySelector('.card-header').className = 'card-header bg-danger text-white';
+            statusMessage.innerHTML = `
+                <div class="alert alert-danger mb-0">
+                    <i class="fas fa-times-circle me-2"></i>Upload failed: ${xhr.responseText}
                 </div>`;
+        }
+    };
 
-                // Reset button state
-                submitBtn.innerHTML = '<i class="fas fa-cloud-upload-alt me-2"></i>Upload File';
-                submitBtn.disabled = false;
-            });
-        });
-    });
+    // This function runs if there's a network error
+    xhr.onerror = function() {
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = '<i class="fas fa-cloud-upload-alt me-2"></i>Upload File';
+        progressContainer.style.display = 'none';
+
+        statusCard.style.display = 'block';
+        statusCard.querySelector('.card-header').className = 'card-header bg-danger text-white';
+        statusMessage.innerHTML = `
+            <div class="alert alert-danger mb-0">
+                <i class="fas fa-times-circle me-2"></i>Network error occurred while uploading the file.
+            </div>`;
+    };
+
+    // Actually send the file!
+    xhr.send(formData);
+});
 </script>
 {% endblock %}
-
-
-
-{#<!DOCTYPE html>#}
-{#<html lang="en">#}
-{#<head>#}
-{#    <meta charset="UTF-8">#}
-{#    <meta name="viewport" content="width-device-width, initial-scale=1.0">#}
-{#    <title>Upload Student Records</title>#}
-{#</head>#}
-{#<body>#}
-{#    <h1>Upload Student records</h1>#}
-{#    <form action="/upload" method="post" enctype="multipart/form-data">#}
-{#          <label for="file">Select an Excel File to upload:</label>#}
-{#          <input type="file" name="file" id="file" accept=".xlsx" required>#}
-{#          <button type="submit">Upload</button>#}
-{#    </form>#}
-{#</body>#}
-{#</html>#}

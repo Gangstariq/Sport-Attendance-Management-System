@@ -1,118 +1,35 @@
 {% extends "base.html" %}
 
-{% block title %}Home - School Attendance Manager{% endblock %}
+{% block title %}SBHS Sports Attendance - Login{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-lg-12 text-center">
-        <h1 class="display-4 mb-4">Welcome to the sports attendence tracking system</h1>
-        <p class="lead">Track and analyse student attendance across all activities and classes</p>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            <div class="card-header">
-                <i class="fas fa-user me-2"></i>Student Attendance
-            </div>
-            <div class="card-body d-flex flex-column">
-                <p class="card-text">Search for individual student attendance records.</p>
-                <a href="/individual_student_attendance" class="btn btn-primary mt-auto">
-                    <i class="fas fa-search me-1"></i> Search Students
-                </a>
-            </div>
+<div class="login-page">
+    <div class="login-container">
+        <div class="school-logo">
+            <i class="fas fa-school me-2"></i>
+            SBHS Sports Attendance
         </div>
-    </div>
 
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            <div class="card-header">
-                <i class="fas fa-chart-line me-2"></i>Daily Attendance Dashboard
-            </div>
-            <div class="card-body d-flex flex-column">
-                <p class="card-text">View attendance trends and statistics by year group with visual data representation.</p>
-                <a href="/daily-attendance-dashboard" class="btn btn-primary mt-auto">
-                    <i class="fas fa-chart-line me-1"></i> View Dashboard
-                </a>
-            </div>
+        <div class="school-subtitle">
+            Sydney Boys High School
         </div>
-    </div>
 
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            <div class="card-header">
-                <i class="fas fa-chart-bar me-2"></i>Year attendence
-            </div>
-            <div class="card-body d-flex flex-column">
-                <p class="card-text">Average attendence by year per group</p>
-                <a href="/average-attendance-per-activity" class="btn btn-primary mt-auto">
-                    <i class="fas fa-chart-bar me-1"></i> View stats
-                </a>
-            </div>
+        <div class="login-description">
+            Track and manage student attendance across all school sports and activities.
+            Sign in with your school account to access your personalized dashboard.
         </div>
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-md-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header">
-                <i class="fas fa-upload me-2"></i>Data Management
-            </div>
-            <div class="card-body d-flex flex-column">
-                <p class="card-text">Upload attendance data from excel spreadsheets to update the database.</p>
-                <a href="/upload" class="btn btn-primary mt-auto">
-                    <i class="fas fa-upload me-1"></i> Upload Data
-                </a>
-            </div>
+        <div class="login-actions">
+            <a href="/student-only-page" class="login-button">
+                <i class="fas fa-sign-in-alt me-2"></i>
+                Sign In with School Account
+            </a>
         </div>
-    </div>
 
-    <div class="col-md-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header">
-                <i class="fas fa-sign-in-alt me-2"></i>SBHS Login
-            </div>
-            <div class="card-body d-flex flex-column">
-                <p class="card-text">Access student-specific features with your SBHS login credentials.</p>
-                <a href="/student-only-page" class="btn btn-primary mt-auto">
-                    <i class="fas fa-sign-in-alt me-1"></i> Login
-                </a>
-            </div>
+        <div class="login-footer">
+            <i class="fas fa-shield-alt me-1"></i>
+            Secure login powered by SBHS authentication system
         </div>
     </div>
 </div>
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
-{#<!DOCTYPE html>#}
-{#<html lang="en">#}
-{#<head>#}
-{#    <meta charset="UTF-8">#}
-{#    <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
-{#    <title>Sports Attendance Tracking System</title>#}
-{#</head>#}
-{#<body>#}
-{#    <h1>Welcome to the Sports Attendance Tracking System</h1>#}
-{#    <nav>#}
-{#        <ul>#}
-{#            <li><a href="/">Home</a></li>#}
-{#            <li><a href="/individual_student_attendance">Individual Student Attendance</a></li>#}
-{#            <li><a href="/daily-attendance-dashboard">Daily Attendance Dashboard</a></li>#}
-{#            <li><a href="/average-attendance-per-activity">Average Attendance per Activity</a></li>#}
-{#            <li><a href="/upload">Upload Attendance Data</a></li>#}
-{#            <li><a href="/student-only-page">SBHS login</a></li>#}
-{#        </ul>#}
-{#    </nav>#}
-{##}
-{#</body>#}
-{#</html>#}

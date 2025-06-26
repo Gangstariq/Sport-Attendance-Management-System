@@ -19,7 +19,7 @@
         <div class="card text-center">
             <div class="card-body">
                 <i class="fas fa-users fa-2x text-primary mb-2"></i>
-                <h4 class="card-title">{{ total_students }}</h4>
+                <h4 class="card-title">324</h4>
                 <p class="card-text">Total Students</p>
             </div>
         </div>
@@ -29,7 +29,7 @@
         <div class="card text-center">
             <div class="card-body">
                 <i class="fas fa-percentage fa-2x text-success mb-2"></i>
-                <h4 class="card-title">{{ school_average }}%</h4>
+                <h4 class="card-title">87%</h4>
                 <p class="card-text">School Average</p>
             </div>
         </div>
@@ -39,7 +39,7 @@
         <div class="card text-center">
             <div class="card-body">
                 <i class="fas fa-futbol fa-2x text-info mb-2"></i>
-                <h4 class="card-title">{{ active_sports }}</h4>
+                <h4 class="card-title">12</h4>
                 <p class="card-text">Active Sports</p>
             </div>
         </div>
@@ -48,9 +48,8 @@
     <div class="col-md-3 mb-3">
         <div class="card text-center">
             <div class="card-body">
-                <i class="fas fa-exclamation-triangle fa-2x 
-                   {% if below_threshold > 10 %}text-danger{% elif below_threshold > 5 %}text-warning{% else %}text-success{% endif %} mb-2"></i>
-                <h4 class="card-title">{{ below_threshold }}</h4>
+                <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                <h4 class="card-title">8</h4>
                 <p class="card-text">Below 85%</p>
             </div>
         </div>
@@ -99,59 +98,6 @@
                         <h5><i class="fas fa-analytics me-2"></i>Advanced Analytics</h5>
                         <div class="row">
                             <div class="col-md-4 mb-2">
-                                <a href="/sport-popularity" class="btn btn-info btn-sm w-100">
-                                    <i class="fas fa-trophy me-1"></i>Sport Popularity
-                                </a>
-                            </div>
-                            <div class="col-md-4 mb-2">
-                                <a href="/perfect-attendance" class="btn btn-info btn-sm w-100">
-                                    <i class="fas fa-award me-1"></i>Perfect Attendance
-                                </a>
-                            </div>
-                            <div class="col-md-4 mb-2">
-                                <a href="/staff-workload" class="btn btn-info btn-sm w-100">
-                                    <i class="fas fa-user-clock me-1"></i>Staff Workload
-                                </a>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <a href="/irregular-absences" class="btn btn-info btn-sm w-100">
-                                    <i class="fas fa-exclamation-circle me-1"></i>Irregular Absences
-                                </a>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <a href="/time-slot-effectiveness" class="btn btn-info btn-sm w-100">
-                                    <i class="fas fa-clock me-1"></i>Time Slot Analysis
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5><i class="fas fa-bell me-2"></i>Recent Activity</h5>
-            </div>
-            <div class="card-body">
-                <p><strong>Last Upload:</strong> {{ last_upload }}</p>
-                <p><strong>Students Need Follow-up:</strong> {{ below_threshold }}</p>
-                <p><strong>System Status:</strong> 
-                    <span class="status-present">All systems operational</span>
-                </p>
-                <hr>
-                <div class="d-grid">
-                    <a href="/logout" class="btn btn-outline-secondary">
-                        <i class="fas fa-sign-out-alt me-2"></i>Logout
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}            <div class="col-md-4 mb-2">
                                 <a href="/sport-popularity" class="btn btn-info btn-sm w-100">
                                     <i class="fas fa-trophy me-1"></i>Sport Popularity
                                 </a>

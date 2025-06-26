@@ -5,16 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e7c5038e-5449-4d4a-8500-bea8b3624c70" name="Changes" comment="test commit">
+      <change afterPath="$PROJECT_DIR$/dashboard_data.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sport_popularity.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Student access/student-dashboard.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/Teacher/teacher-dashboard.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/attendance_queries.py" beforeDir="false" afterPath="$PROJECT_DIR$/attendance_queries.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/average_attendance_per_activity.py" beforeDir="false" afterPath="$PROJECT_DIR$/average_attendance_per_activity.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/console_1.sql" beforeDir="false" afterPath="$PROJECT_DIR$/console_1.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Student access/individual_student_attendance.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Student access/individual_student_attendance.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Teacher/average-attendance-per-activity.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/average-attendance-per-activity.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataBase/students.db" beforeDir="false" afterPath="$PROJECT_DIR$/dataBase/students.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Teacher/teacher-home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/teacher-home.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/uploads/Student_records_realistic.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/upload.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/upload.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,9 +26,9 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Flask Main" />
-        <option value="Python Script" />
         <option value="CSS File" />
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -156,6 +157,9 @@
       <workItem from="1746367692764" duration="2805000" />
       <workItem from="1746425572701" duration="2185000" />
       <workItem from="1746428087895" duration="9780000" />
+      <workItem from="1747048434994" duration="1240000" />
+      <workItem from="1750838219999" duration="4560000" />
+      <workItem from="1750931388549" duration="5765000" />
     </task>
     <task id="LOCAL-00001" summary="Inital Commit">
       <option name="closed" value="true" />
@@ -267,6 +271,6 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/DB_experiments$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1740913494608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/DB_Demo_Website$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1746438238878" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/DB_Demo_Website$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1750931726219" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
