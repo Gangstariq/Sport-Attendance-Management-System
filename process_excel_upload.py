@@ -132,11 +132,11 @@ def create_tables():
 # Create the tables
 create_tables()
 
-# Call it
-create_tables()
-
-
-
-
-# Call the create_tables function to ensure the tables exist
-create_tables()
+# # Call it
+# create_tables()
+#
+#
+#
+#
+# # Call the create_tables function to ensure the tables exist
+# create_tables()

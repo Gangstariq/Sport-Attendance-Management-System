@@ -4,18 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7c5038e-5449-4d4a-8500-bea8b3624c70" name="Changes" comment="test commit">
-      <change afterPath="$PROJECT_DIR$/dashboard_data.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sport_popularity.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/Student access/student-dashboard.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/Teacher/teacher-dashboard.html" afterDir="false" />
+    <list default="true" id="e7c5038e-5449-4d4a-8500-bea8b3624c70" name="Changes" comment="-reworked student + teacher dashboard&#10;-added query to get high level data for dashboard&#10;-redid routing to incoporate authentication">
+      <change afterPath="$PROJECT_DIR$/functions/student_services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/attendance_queries.py" beforeDir="false" afterPath="$PROJECT_DIR$/attendance_queries.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dashboard_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/dashboard_data.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dataBase/students.db" beforeDir="false" afterPath="$PROJECT_DIR$/dataBase/students.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/style.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Teacher/teacher-home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/teacher-home.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/upload.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/upload.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/process_excel_upload.py" beforeDir="false" afterPath="$PROJECT_DIR$/process_excel_upload.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Student access/individual_student_attendance.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/individual_student_attendance.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Student access/student-dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Student access/student-dashboard.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,6 +43,7 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -100,6 +99,7 @@
       <recent name="C:\Users\tariq\PycharmProjects\DB experiments\templates" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\tariq\PycharmProjects\DB-Demo-Website\templates\Teacher" />
       <recent name="C:\Users\tariq\PycharmProjects\DB experiments\dataBase" />
     </key>
   </component>
@@ -159,7 +159,13 @@
       <workItem from="1746428087895" duration="9780000" />
       <workItem from="1747048434994" duration="1240000" />
       <workItem from="1750838219999" duration="4560000" />
-      <workItem from="1750931388549" duration="5765000" />
+      <workItem from="1750931388549" duration="6680000" />
+      <workItem from="1750993483444" duration="6006000" />
+      <workItem from="1751102702700" duration="6925000" />
+      <workItem from="1751171114121" duration="4875000" />
+      <workItem from="1751265796904" duration="9260000" />
+      <workItem from="1752035620219" duration="8759000" />
+      <workItem from="1752221892842" duration="5395000" />
     </task>
     <task id="LOCAL-00001" summary="Inital Commit">
       <option name="closed" value="true" />
@@ -241,7 +247,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746369557392</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="-reworked student + teacher dashboard&#10;-added query to get high level data for dashboard&#10;-redid routing to incoporate authentication">
+      <option name="closed" value="true" />
+      <created>1750945238878</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1750945238878</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -267,10 +281,11 @@
     <MESSAGE value="Populated teams table, enrolments table and attendance table from the staging table" />
     <MESSAGE value="Created Base template, worked on css + styling, started fixing all my querys to match my new normalised ata base" />
     <MESSAGE value="test commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="test commit" />
+    <MESSAGE value="-reworked student + teacher dashboard&#10;-added query to get high level data for dashboard&#10;-redid routing to incoporate authentication" />
+    <option name="LAST_COMMIT_MESSAGE" value="-reworked student + teacher dashboard&#10;-added query to get high level data for dashboard&#10;-redid routing to incoporate authentication" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/DB_experiments$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1740913494608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/DB_Demo_Website$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1750931726219" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/DB_Demo_Website$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1752221941277" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

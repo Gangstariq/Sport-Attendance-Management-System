@@ -11,12 +11,22 @@ from flask_oidc import OpenIDConnect
 from flask import Flask, redirect, url_for
 
 #imports of other python functions:
+from functions.student_service import students_attendance, get_student_dashboard_data
+from functions.teacher_service import (
+    daily_attendance_summary,
+    activity_attendance,
+    sport_attendance_by_year,
+    get_teacher_dashboard_data,
+    get_sport_popularity
+)
+
+
 import process_excel_upload
 import attendance_queries
 from average_attendance_per_activity import activity_attendance
 from process_excel_upload import create_connection
 from dashboard_data import get_student_dashboard_data, get_teacher_dashboard_data
-
+import function
 
 app = Flask(__name__)
 app.secret_key = "hgytdytdtrds324strcd"
@@ -33,7 +43,93 @@ app.config["OIDC_SCOPES"] = "openid profile"
 # collisions with our routes.
 oidc = OpenIDConnect(app, prefix="/oidc/")
 
+#Functions NOT related to routing
+def parse_date_flexible(date_string):
+#    Takes in date string which can be multiple formats
+#    and converst them into a datetime object
+
+# all possible date formats to try
+    date_formats = [
+        '%Y-%m-%d %H:%M:%S',  #Type 1 (Large dataset format): "2024-11-09 14:30:00"
+        '%d %b %Y',  #Type 2 (Old realistic data format): "9 Nov 2024"
+        '%d-%m-%Y',  #Type3: "09-11-2024"
+        '%Y-%m-%d',  #Typ 4 : "2024-11-09"
+        '%d/%m/%Y',  #Type 5: "09/11/2024"
+        '%m/%d/%Y',  #Type 6: "11/09/2024"
+        '%d %B %Y',  #Type 7: "9 November 2024"
+    ]
+
+# Try each format until one works
+    for dateformat in date_formats:
+        try:
+            return datetime.datetime.strptime(date_string, dateformat)
+        except ValueError: #Keep trying if the datetime doesn't work
+            continue
+
+    # if none of them work then send an error
+    raise ValueError(f"Could not take in data in format: '{date_string}'. Supported formats: {date_formats}")
+
+def parse_time_flexible(time_string):
+
+#    Does the same thing as date but for time
+#    and then returns time object
+
+# all possible time formats
+    time_formats = [
+        '%I:%M%p',  # Original: "2:30PM"
+        '%H:%M',  # 24-hour: "14:30"
+        '%I:%M %p',  # With space: "2:30 PM"
+        '%H:%M:%S',  # With seconds: "14:30:00"
+    ]
+
+# reiterate through all formats till one works
+    for timeformat in time_formats:
+        try:
+            return datetime.datetime.strptime(time_string, timeformat).time()
+        except ValueError:
+            continue
+
+    # If none work, return a default time
+    print(f"System was not able to take in the format of '{time_string}', using default 12:00 PM")
+    return datetime.time(12, 0)  # Default to 12:00 PM
+
+
+
+
+
+
+
+
+
+
+
+
 #Routing:
+@app.route('/', methods=['GET'])
+def home():
+    # Check if user is already logged in
+    if oidc.user_loggedin:
+        oidc_profile = session.get("oidc_auth_profile")
+
+        if oidc_profile:
+            # Check if user is a student
+            if "student_id" in oidc_profile:
+                return redirect("/student-dashboard")
+            else:
+                # Assume teacher/staff if not a student
+                return redirect("/teacher-dashboard")
+
+    # If not logged in, show the login page
+    return render_template('home.html')
+
+@app.route('/logout')
+def logout_simple():
+    oidc.logout()
+    session.clear()
+    return redirect("/")
+
+
+
 @app.route('/teacher-dashboard')
 def teacher_dashboard():
     # if not oidc.user_loggedin:
@@ -47,29 +143,13 @@ def teacher_dashboard():
     # teacher_name = oidc_profile.get('name', 'Teacher')
     #
     # # Get real data from database
-    dashboard_data = get_teacher_dashboard_data()
+    # dashboard_data = get_teacher_dashboard_data()
+    #
+    # return render_template('Teacher/teacher-dashboard.html',
+    #                        teacher_name=teacher_name,
+    #                        **dashboard_data)
+    return render_template('Teacher/teacher-dashboard.html')
 
-    return render_template('Teacher/teacher-dashboard.html',
-                           # teacher_name=teacher_name,
-                           **dashboard_data)
-
-
-#TEACHER ROUTING FUNCTIONS (ALL LINK TO A .PY FUNCTION)
-
-# @app.route('/teacher-dashboard')
-# def teacher_dashboard():
-#     if not oidc.user_loggedin:
-#         return redirect("/")
-#
-#     oidc_profile = session.get("oidc_auth_profile")
-#     if "student_id" in oidc_profile:
-#         return redirect("/student-dashboard")  # Wrong user type
-#
-#     # Get teacher info from profile
-#     teacher_name = oidc_profile.get('name', 'Teacher')
-#
-#     return render_template('Teacher/teacher-dashboard.html',
-#                            teacher_name=teacher_name)
 
 @app.route('/daily-attendance-dashboard', methods=['GET', 'POST'])
 def daily_attendance_dashboard():
@@ -81,7 +161,6 @@ def daily_attendance_dashboard():
         results = attendance_queries.daily_attendance_summary(year_ID)  # Call function from external file
 
     return render_template('Teacher/daily-attendance-dashboard.html', results=results, year_ID=year_ID)
-
 
 @app.route('/daily-attendance-dashboard-graph', methods=['GET', 'POST'])
 def daily_attendance_graph():
@@ -173,26 +252,6 @@ def average_attendance_per_activity_graph():
 
 
 
-def students_attendance(student_ID):
-    db_path = os.path.join(app.root_path, "dataBase", "students.db")
-    query = f"""
-        SELECT DISTINCT students.student_id, teams.team_name, activity, attendance_status, session_date
-        FROM students, attendance_records, enrollments, teams
-
-        WHERE students.student_id == enrollments.student_id
-        AND enrollments.team_id == teams.team_id
-        AND enrollments.enrollment_id == attendance_records.enrollment_id
-        AND students.student_id = ?
-        order by students.student_id, session_date, team_name, activity
-    """
-    connection = sqlite3.connect(db_path)
-    cursor = connection.cursor()
-    cursor.execute(query, (f"%{student_ID}%",)) # sql syntax for pattern matching anywhere,
-                                                            # passed as a single element tuple
-
-    results = cursor.fetchall()
-    connection.close()
-    return results
 
 
 def sport_attendance_by_year(year_ID):
@@ -261,23 +320,83 @@ def student_login_redirect():
         return oidc.redirect_to_auth_server("/")
 
 
+# @app.route('/student-dashboard')
+# def student_dashboard():
+#     if not oidc.user_loggedin:
+#         return redirect("/")
+#
+#     oidc_profile = session.get("oidc_auth_profile")
+#     if "student_id" not in oidc_profile:
+#         return redirect("/teacher-dashboard")  # Wrong user type
+#
+#     # Get student info from profile
+#     student_id = oidc_profile.get('student_id', 'Unknown')
+#
+#     # Get real data from database
+#     dashboard_data = get_student_dashboard_data(student_id)
+#
+#     return render_template('Student access/student-dashboard.html',
+#                            student_id=student_id,
+#                            **dashboard_data)
+
 @app.route('/student-dashboard')
 def student_dashboard():
-    if not oidc.user_loggedin:
-        return redirect("/")
-
+    # Uncomment these when ready to use authentication
+    # if not oidc.user_loggedin:
+    #     return redirect("/")
+    #
     oidc_profile = session.get("oidc_auth_profile")
-    if "student_id" not in oidc_profile:
-        return redirect("/teacher-dashboard")  # Wrong user type
+    # if "student_id" not in oidc_profile:
+    #     return redirect("/teacher-dashboard")  # Wrong user type
+    #
+    # student_id = oidc_profile.get('student_id', 'Unknown')
+
+    # forceful student id for testing
+    # student_id = "444415703"  # from the anon excel sheet
 
     # Get student info from profile
     student_id = oidc_profile.get('student_id', 'Unknown')
 
-    # Get real data from database
+    # Get student dashboard data
     dashboard_data = get_student_dashboard_data(student_id)
+
+    # Get student's own attendance for graph
+    my_attendance_data = students_attendance(student_id)
+    my_attendance_graph = ""
+
+    if my_attendance_data:
+        # Create attendance graph for this student
+        statuses = [record[3] for record in my_attendance_data]
+        attendance_count = {"Present": 0, "Explained absence": 0, "Unexplained absence": 0}
+
+        for status in statuses:
+            if status in attendance_count:
+                attendance_count[status] += 1
+
+        # Create Plotly graph
+        fig = go.Figure()
+        fig.add_trace(go.Bar(
+            x=list(attendance_count.keys()),
+            y=list(attendance_count.values()),
+            marker=dict(color=['green', 'orange', 'red'])
+        ))
+
+        fig.update_layout(
+            title=f'My Attendance Summary',
+            xaxis_title='Status',
+            yaxis_title='Count',
+            height=400
+        )
+
+        my_attendance_graph = fig.to_html(full_html=False)
+
+    # Get recent sessions (last 10)
+    recent_sessions = my_attendance_data[-10:] if my_attendance_data else []
 
     return render_template('Student access/student-dashboard.html',
                            student_id=student_id,
+                           my_attendance_graph=my_attendance_graph,
+                           recent_sessions=recent_sessions,
                            **dashboard_data)
 
 @app.route('/individual_student_attendance', methods=['GET', 'POST'])
@@ -329,7 +448,7 @@ def individual_student_attendance():
         fig = go.Figure(data=data, layout=layout)
         graph_html = fig.to_html(full_html=False)
 
-    return render_template('Student access/individual_student_attendance.html', results=results, graph_html=graph_html) #converst graph to html graph
+    return render_template('Teacher/individual_student_attendance.html', results=results, graph_html=graph_html) #converst graph to html graph
 
 
 
@@ -347,7 +466,7 @@ def individual_student_attendance():
 
 
 
-def normalize_and_insert_data():
+def normalise_and_insert_data():
     conn = create_connection()
     cursor = conn.cursor()
 
@@ -368,7 +487,7 @@ def normalize_and_insert_data():
     #iterate through each row of data
     for row in rows:
         (
-            full_name, student_id, year, boarder, house, homeroom,
+            student_id, full_name, year, boarder, house, homeroom,
             campus, gender, birthdate, secondary, email, team, activity,
             session, date, start_time, end_time, session_staff, attendance,
             for_fixture, flags, cancelled
@@ -393,7 +512,7 @@ def normalize_and_insert_data():
         # add all unique teams to the team table
         team_semester = None
         team_year = None
-        date_converted = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
+        date_converted = parse_date_flexible(str(date))
         team_year = date_converted.year
         if date_converted.month <= 6:
             team_semester = 1
@@ -402,7 +521,7 @@ def normalize_and_insert_data():
 
         team_key = (team, activity, team_year, team_semester)
         if team_key not in team_cache:
-            # What i did : logic to add teams to the team sql table
+            # added logic to add teams to the team sql table
             cursor.execute('''
                 INSERT INTO teams (team_name, activity, semester, year)
                 VALUES (?, ?, ?, ?)
@@ -443,12 +562,24 @@ def normalize_and_insert_data():
         if enrollment_row:
             enrollment_id = enrollment_row[0]
 
-            # create start_datetime by combining date + start_time, might be unneccesary
-            date_part = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S').date()
-            start_time_part = datetime.datetime.strptime(start_time, '%I:%M%p').time()
-            end_time_part = datetime.datetime.strptime(end_time, '%I:%M%p').time()
+            # create start_datetime by combining date + start_time
+            date_part = date_converted.date()
+
+
+            start_time_part = parse_time_flexible(str(start_time))
+            end_time_part = parse_time_flexible(str(end_time))
+
             start_datetime = datetime.datetime.combine(date_part, start_time_part)
             end_datetime = datetime.datetime.combine(date_part, end_time_part)
+
+
+            #old datetime code that didnt use the new function which is more flexible
+            # create start_datetime by combining date + start_time, might be unneccesary
+            # date_part = datetime.datetime.strptime(date, '%d %b %Y').date()  #notorignal -  change back to %Y-%m-%d %H:%M:%S - correct
+            # start_time_part = datetime.datetime.strptime(start_time, '%I:%M%p').time()
+            # end_time_part = datetime.datetime.strptime(end_time, '%I:%M%p').time()
+            # start_datetime = datetime.datetime.combine(date_part, start_time_part)
+            # end_datetime = datetime.datetime.combine(date_part, end_time_part)
 
             attendance_key = (enrollment_id, start_datetime)
             if attendance_key not in attendance_cache:
@@ -465,6 +596,8 @@ def normalize_and_insert_data():
     #capture attendance for each session (attendance_record table)
 
     conn.close()
+
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'GET':
@@ -485,11 +618,8 @@ def upload_file():
                                                         # characters e.g. ../../file.xlsx)
             file.save(os.path.join('uploads', filename))
 
-
             wb = load_workbook(os.path.join('uploads', filename))
             sheet = wb.active
-
-
 
             conn = process_excel_upload.create_connection()
             cursor = conn.cursor()
@@ -521,24 +651,17 @@ def upload_file():
                     secondary, email, team, activity, session, date, start_time, end_time, session_staff,
                     attendance, for_fixture, flags, cancelled
                 ))
-                #todo: add datetime for when each record is uploaded
-
-                # Insert the attendance record
-
-                # cursor.execute('''
-                #     INSERT INTO attendance_records (student_id, activity, attendance, date, year)
-                #     VALUES (?, ?, ?, ?, ?)
-                # ''', (student_id, activity, attendance, date, year))
-                #
 
             conn.commit()
             conn.close()
 
-            normalize_and_insert_data()
+            normalise_and_insert_data()
 
             return jsonify({"success": "File data added to database"})
         return jsonify({"error": "Invalid file format. Please upload an .xlsx file."})
     return jsonify({"error": "Invalid file format. Please upload an .xlsx file."})
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

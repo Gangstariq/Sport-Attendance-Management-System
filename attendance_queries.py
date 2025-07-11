@@ -10,7 +10,7 @@ def daily_attendance_summary(year_ID):
     #CAST converts the date into an integer so its like ordered correctly
     query = """
             SELECT 
-                strftime('%Y-%m-%d', attendance_records.session_date) AS formatted_date, 
+                attendance_records.session_date AS formatted_date, 
                 SUM(CASE WHEN attendance_records.attendance_status = 'Present' THEN 1 ELSE 0 END) AS present_count,
                 SUM(CASE WHEN attendance_records.attendance_status = 'Explained absence' THEN 1 ELSE 0 END) AS explained_absence_count,
                 SUM(CASE WHEN attendance_records.attendance_status = 'Unexplained absence' THEN 1 ELSE 0 END) AS unexplained_absence_count

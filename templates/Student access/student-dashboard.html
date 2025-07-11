@@ -15,7 +15,7 @@
 
 <!-- Quick Stats Cards -->
 <div class="row mb-4">
-    <div class="col-md-3 mb-3">
+    <div class="col-md-4 mb-3">
         <div class="card text-center">
             <div class="card-body">
                 <i class="fas fa-percentage fa-2x text-primary mb-2"></i>
@@ -25,7 +25,7 @@
         </div>
     </div>
 
-    <div class="col-md-3 mb-3">
+    <div class="col-md-4 mb-3">
         <div class="card text-center">
             <div class="card-body">
                 <i class="fas fa-running fa-2x text-success mb-2"></i>
@@ -35,7 +35,7 @@
         </div>
     </div>
 
-    <div class="col-md-3 mb-3">
+    <div class="col-md-4 mb-3">
         <div class="card text-center">
             <div class="card-body">
                 <i class="fas fa-calendar-check fa-2x text-info mb-2"></i>
@@ -45,37 +45,95 @@
         </div>
     </div>
 
-    <div class="col-md-3 mb-3">
-        <div class="card text-center">
+
+</div>
+
+<!-- My Attendance Overview -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-chart-bar me-2"></i>My Attendance Summary</h3>
+            </div>
             <div class="card-body">
-                <i class="fas fa-clock fa-2x text-warning mb-2"></i>
-                <h4 class="card-title">{{ days_since_absence }}</h4>
-                <p class="card-text">Since Last Absence</p>
+                {% if my_attendance_graph %}
+                    {{ my_attendance_graph|safe }}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No attendance data available</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-list me-1"></i>Recent Sessions</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_sessions %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Activity</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for session in recent_sessions %}
+                                <tr>
+                                    <td>{{ session[4] }}</td> <!-- Date -->
+                                    <td>{{ session[2] }}</td> <!-- Activity -->
+                                    <td>
+                                        {% if session[3] == 'Present' %}
+                                            <span class="status-present">Present</span>
+                                        {% elif session[3] == 'Explained absence' %}
+                                            <span class="status-explained">Explained</span>
+                                        {% else %}
+                                            <span class="status-unexplained">Absent</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No recent sessions found</p>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
 
-<!-- Main Actions -->
+
+
+<!-- Quick Actions -->
 <div class="row">
     <div class="col-md-8">
         <div class="card">
             <div class="card-header">
-                <h3><i class="fas fa-chart-line me-2"></i>Quick Actions</h3>
+                <h5><i class="fas fa-info-circle me-2"></i>Quick Info</h5>
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <a href="/individual_student_attendance" class="btn btn-primary btn-lg w-100">
-                            <i class="fas fa-history me-2"></i>
-                            View Detailed History
-                        </a>
+                    <div class="col-md-6">
+                        <p><strong>Student ID:</strong> {{ student_id }}</p>
+                        <p><strong>Total Sessions:</strong> {{ total_sessions }}</p>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <a href="/logout" class="btn btn-outline-secondary btn-lg w-100">
-                            <i class="fas fa-sign-out-alt me-2"></i>
-                            Logout
-                        </a>
+                    <div class="col-md-6">
+                        <p><strong>Attendance Status:</strong>
+                            {% if overall_attendance >= 85 %}
+                                <span class="status-present">On Track (Above 85%)</span>
+                            {% else %}
+                                <span class="status-unexplained">At Risk (Below 85%)</span>
+                            {% endif %}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -85,20 +143,13 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-header">
-                <h5><i class="fas fa-info-circle me-2"></i>Quick Info</h5>
+                <h5><i class="fas fa-cog me-2"></i>Actions</h5>
             </div>
-            <div class="card-body">
-                <p><strong>Student ID:</strong> {{ student_id }}</p>
-                <p><strong>Attendance Status:</strong>
-                    {% if overall_attendance >= 85 %}
-                        <span class="status-present">On Track</span>
-                    {% elif overall_attendance >= 70 %}
-                        <span class="status-explained">Needs Improvement</span>
-                    {% else %}
-                        <span class="status-unexplained">At Risk</span>
-                    {% endif %}
-                </p>
-                <p><strong>Total Sessions:</strong> {{ total_sessions }}</p>
+            <div class="card-body text-center">
+                <a href="/logout" class="btn btn-outline-secondary btn-lg w-100">
+                    <i class="fas fa-sign-out-alt me-2"></i>
+                    Logout
+                </a>
             </div>
         </div>
     </div>
