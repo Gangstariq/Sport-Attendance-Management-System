@@ -11,22 +11,14 @@ from flask_oidc import OpenIDConnect
 from flask import Flask, redirect, url_for
 
 #imports of other python functions:
-from functions.student_service import students_attendance, get_student_dashboard_data
-from functions.teacher_service import (
-    daily_attendance_summary,
-    activity_attendance,
-    sport_attendance_by_year,
-    get_teacher_dashboard_data,
-    get_sport_popularity
-)
+from functions.student_services import students_attendance, get_student_dashboard_data
+from functions.teacher_services import daily_attendance_summary, activity_attendance, sport_attendance_by_year, get_teacher_dashboard_data, get_sport_popularity, perfect_attendance_students, staff_workload_analysis, low_attendance_students
+
+
 
 
 import process_excel_upload
-import attendance_queries
-from average_attendance_per_activity import activity_attendance
 from process_excel_upload import create_connection
-from dashboard_data import get_student_dashboard_data, get_teacher_dashboard_data
-import function
 
 app = Flask(__name__)
 app.secret_key = "hgytdytdtrds324strcd"
@@ -93,17 +85,41 @@ def parse_time_flexible(time_string):
     print(f"System was not able to take in the format of '{time_string}', using default 12:00 PM")
     return datetime.time(12, 0)  # Default to 12:00 PM
 
+def parse_excel_row_flexible(row):
+#function basically lets me use both small and large excel sheet as one starts with ID and other starts with Name
+
+    if row[0]:
+        first_value = str(row[0])
+    else:
+        first_value = ""
+    if row[1]:
+        second_value = str(row[1])
+    else:
+        second_value = ""
 
 
+    if first_value.isdigit(): #checks if its a digit, if it is assign these variables
+        (
+            student_id, full_name, year, boarder, house, homeroom,
+            campus, gender, birthdate, secondary, email, team, activity,
+            session, date, start_time, end_time, session_staff, attendance,
+            for_fixture, flags, cancelled
+        ) = row
+    else: #if starts with name then assign these variables
+        (
+            full_name, student_id, year, boarder, house, homeroom,
+            campus, gender, birthdate, secondary, email, team, activity,
+            session, date, start_time, end_time, session_staff, attendance,
+            for_fixture, flags, cancelled
+        ) = row
 
 
-
-
-
-
-
-
-
+    return ( #hence return the way the code takes it after the assignment
+        student_id, full_name, year, boarder, house, homeroom,
+        campus, gender, birthdate, secondary, email, team, activity,
+        session, date, start_time, end_time, session_staff, attendance,
+        for_fixture, flags, cancelled
+    )
 #Routing:
 @app.route('/', methods=['GET'])
 def home():
@@ -143,12 +159,12 @@ def teacher_dashboard():
     # teacher_name = oidc_profile.get('name', 'Teacher')
     #
     # # Get real data from database
-    # dashboard_data = get_teacher_dashboard_data()
+    dashboard_data = get_teacher_dashboard_data()
     #
     # return render_template('Teacher/teacher-dashboard.html',
     #                        teacher_name=teacher_name,
     #                        **dashboard_data)
-    return render_template('Teacher/teacher-dashboard.html')
+    return render_template('Teacher/teacher-dashboard.html', **dashboard_data)
 
 
 @app.route('/daily-attendance-dashboard', methods=['GET', 'POST'])
@@ -158,10 +174,9 @@ def daily_attendance_dashboard():
 
     if request.method == 'POST':
         year_ID = request.form.get('year_ID', '')
-        results = attendance_queries.daily_attendance_summary(year_ID)  # Call function from external file
+        results = daily_attendance_summary(year_ID)  # Call function from external file
 
     return render_template('Teacher/daily-attendance-dashboard.html', results=results, year_ID=year_ID)
-
 @app.route('/daily-attendance-dashboard-graph', methods=['GET', 'POST'])
 def daily_attendance_graph():
     results = []
@@ -171,7 +186,7 @@ def daily_attendance_graph():
     if request.method == 'POST':
         # Get the year_ID from the form input
         year_ID = request.form.get('year_ID', '')
-        results = attendance_queries.daily_attendance_summary(year_ID)  # Fetch data from DB
+        results = daily_attendance_summary(year_ID)  # Fetch data from DB
 
         if results:
             # Extract data for the graph
@@ -210,8 +225,6 @@ def average_attendance_per_activity():
         results = activity_attendance(year_ID)
 
     return render_template('Teacher/average-attendance-per-activity.html', results=results, year_ID=year_ID)
-
-
 @app.route('/average-attendance-per-activity-graph', methods=['GET', 'POST'])
 def average_attendance_per_activity_graph():
     results = []
@@ -247,157 +260,6 @@ def average_attendance_per_activity_graph():
 
     return render_template('Teacher/average-attendance-per-activity.html', results=results, graph_html=graph_html,
                            year_ID=year_ID)
-
-
-
-
-
-
-
-def sport_attendance_by_year(year_ID):
-    db_path = os.path.join(app.root_path, "dataBase", "students.db")
-    query = f"""
-            SELECT DISTINCT students.student_id, students.year_group, teams.activity, attendance_records.attendance_status, attendance_records.session_date
-            FROM students, attendance_records, enrollments, teams
-
-            WHERE students.student_id = enrollments.student_id
-            AND enrollments.team_id = teams.team_id
-            AND enrollments.enrollment_id = attendance_records.enrollment_id
-            AND students.year_group LIKE ?
-
-        """
-    connection = sqlite3.connect(db_path)
-    cursor = connection.cursor()
-
-    cursor.execute(query, (f"%{year_ID}%",))  # Ensure year_ID is a string
-    results = cursor.fetchall()
-
-    connection.close()  # Always close the database connection
-    return results
-
-
-
-
-
-
-
-
-# @app.route("/student-only-page")
-# def student_only_page():
-# 	if oidc.user_loggedin:
-# 		oidc_profile = session["oidc_auth_profile"]
-#
-# 		# Teachers can potentially log in through the school's OIDC server
-# 		# as well, but we only want students.
-# 		if "student_id" not in oidc_profile:
-# 			return "SBHS account must be for a student.", 401
-#
-# 		return f"Hello, {oidc_profile['student_id']}!"
-# 	else:
-# 		# The argument to this function is what route we want the user to be
-# 		# returned to after completing the login. In this case, this page.
-# 		return oidc.redirect_to_auth_server("/student-only-page")
-
-#end of copied auth code
-
-
-@app.route("/student-only-page")
-def student_login_redirect():
-    if oidc.user_loggedin:
-        oidc_profile = session.get("oidc_auth_profile")
-
-        # Teachers can potentially log in through the school's OIDC server
-        # as well, but we only want students.
-        if oidc_profile:
-            # Check if user is a student
-            if "student_id" in oidc_profile:
-                return redirect("/student-dashboard")
-            else:
-                # Teacher/staff redirect
-                return redirect("/teacher-dashboard")
-    else:
-        # Redirect to  login, then come back to home page
-        return oidc.redirect_to_auth_server("/")
-
-
-# @app.route('/student-dashboard')
-# def student_dashboard():
-#     if not oidc.user_loggedin:
-#         return redirect("/")
-#
-#     oidc_profile = session.get("oidc_auth_profile")
-#     if "student_id" not in oidc_profile:
-#         return redirect("/teacher-dashboard")  # Wrong user type
-#
-#     # Get student info from profile
-#     student_id = oidc_profile.get('student_id', 'Unknown')
-#
-#     # Get real data from database
-#     dashboard_data = get_student_dashboard_data(student_id)
-#
-#     return render_template('Student access/student-dashboard.html',
-#                            student_id=student_id,
-#                            **dashboard_data)
-
-@app.route('/student-dashboard')
-def student_dashboard():
-    # Uncomment these when ready to use authentication
-    # if not oidc.user_loggedin:
-    #     return redirect("/")
-    #
-    oidc_profile = session.get("oidc_auth_profile")
-    # if "student_id" not in oidc_profile:
-    #     return redirect("/teacher-dashboard")  # Wrong user type
-    #
-    # student_id = oidc_profile.get('student_id', 'Unknown')
-
-    # forceful student id for testing
-    # student_id = "444415703"  # from the anon excel sheet
-
-    # Get student info from profile
-    student_id = oidc_profile.get('student_id', 'Unknown')
-
-    # Get student dashboard data
-    dashboard_data = get_student_dashboard_data(student_id)
-
-    # Get student's own attendance for graph
-    my_attendance_data = students_attendance(student_id)
-    my_attendance_graph = ""
-
-    if my_attendance_data:
-        # Create attendance graph for this student
-        statuses = [record[3] for record in my_attendance_data]
-        attendance_count = {"Present": 0, "Explained absence": 0, "Unexplained absence": 0}
-
-        for status in statuses:
-            if status in attendance_count:
-                attendance_count[status] += 1
-
-        # Create Plotly graph
-        fig = go.Figure()
-        fig.add_trace(go.Bar(
-            x=list(attendance_count.keys()),
-            y=list(attendance_count.values()),
-            marker=dict(color=['green', 'orange', 'red'])
-        ))
-
-        fig.update_layout(
-            title=f'My Attendance Summary',
-            xaxis_title='Status',
-            yaxis_title='Count',
-            height=400
-        )
-
-        my_attendance_graph = fig.to_html(full_html=False)
-
-    # Get recent sessions (last 10)
-    recent_sessions = my_attendance_data[-10:] if my_attendance_data else []
-
-    return render_template('Student access/student-dashboard.html',
-                           student_id=student_id,
-                           my_attendance_graph=my_attendance_graph,
-                           recent_sessions=recent_sessions,
-                           **dashboard_data)
 
 @app.route('/individual_student_attendance', methods=['GET', 'POST'])
 def individual_student_attendance():
@@ -455,6 +317,320 @@ def individual_student_attendance():
 
 
 
+@app.route('/sport-popularity', methods=['GET', 'POST'])
+def sport_popularity():
+    results = []
+    year_filter = ""
+
+    if request.method == 'POST':
+        year_filter = request.form.get('year_filter', '').strip()  # Changed from year_ID to year_filter
+
+        # Convert to int if provided and not empty, otherwise None
+        if year_filter and year_filter != '':
+            try:
+                year_filter_int = int(year_filter)
+            except ValueError:
+                year_filter_int = None
+        else:
+            year_filter_int = None
+
+        results = get_sport_popularity(year_filter_int)
+
+    return render_template('Teacher/sport-popularity.html', results=results,
+                           year_filter=year_filter)  # Changed year_ID to year_filter
+
+
+@app.route('/sport-popularity-graph', methods=['GET', 'POST'])
+def sport_popularity_graph():
+    results = []
+    graph_html = ""
+    year_filter = ""
+
+    if request.method == 'POST':
+        year_filter = request.form.get('year_filter', '').strip()  # Changed from year_ID to year_filter
+
+        # Convert to int if provided and not empty, otherwise None
+        if year_filter and year_filter != '':
+            try:
+                year_filter_int = int(year_filter)
+            except ValueError:
+                year_filter_int = None
+        else:
+            year_filter_int = None
+
+        results = get_sport_popularity(year_filter_int)
+
+        if results:
+            sports = [record[0] for record in results]  # Activity names
+            enrollments = [record[1] for record in results]  # Total enrolled
+
+            # Create Plotly Bar Graph for Sport Popularity
+            fig = go.Figure()
+
+            fig.add_trace(go.Bar(x=sports, y=enrollments, name="Students Enrolled"))
+
+            # Layout Settings
+            title_text = f'Sport Popularity for {year_filter}' if year_filter else 'Sport Popularity - All Years'  # Changed year_ID to year_filter
+            fig.update_layout(
+                title=title_text,
+                xaxis_title='Sports/Activities',
+                yaxis_title='Number of Students Enrolled',
+                xaxis_tickangle=-45
+            )
+
+            graph_html = fig.to_html(full_html=False)
+
+    return render_template('Teacher/sport-popularity.html', results=results, graph_html=graph_html,
+                           year_filter=year_filter)  # Changed year_ID to year_filter
+
+
+@app.route('/perfect-attendance', methods=['GET', 'POST'])
+def perfect_attendance():
+    results = []
+    year_ID = ""
+    unique_students = 0
+    unique_sports = 0
+
+    if request.method == 'POST':
+        year_ID = request.form.get('year_ID', '')
+        # Convert to int if provided, otherwise None for the function
+        year_filter = int(year_ID) if year_ID else None
+        results = perfect_attendance_students(year_filter)
+
+        # Calculate summary stats
+        if results:
+            # Count unique students (some students might be in multiple sports)
+            student_ids = []
+            sports = []
+
+            for result in results:
+                if result[0] not in student_ids:  # result[0] is student_id
+                    student_ids.append(result[0])
+                if result[3] not in sports:  # result[3] is activity
+                    sports.append(result[3])
+
+            unique_students = len(student_ids)
+            unique_sports = len(sports)
+
+    return render_template('Teacher/perfect-attendance.html',
+                           results=results,
+                           year_ID=year_ID,
+                           unique_students=unique_students,
+                           unique_sports=unique_sports)
+
+
+@app.route('/staff-workload', methods=['GET', 'POST'])
+def staff_workload():
+    results = []
+    year_filter = ""
+
+    if request.method == 'POST':
+        year_filter = request.form.get('year_filter', '').strip()
+
+        # Convert to int if provided and not empty, otherwise None
+        if year_filter and year_filter != '':
+            try:
+                year_filter_int = int(year_filter)
+            except ValueError:
+                year_filter_int = None
+        else:
+            year_filter_int = None
+
+        results = staff_workload_analysis(year_filter_int)
+
+    return render_template('Teacher/staff-workload.html', results=results, year_filter=year_filter)
+@app.route('/staff-workload-graph', methods=['POST'])
+def staff_workload_graph():
+    year_filter = request.form.get('year_filter', '').strip()
+
+    # Convert to int if provided and not empty, otherwise None
+    if year_filter and year_filter != '':
+        try:
+            year_filter_int = int(year_filter)
+        except ValueError:
+            year_filter_int = None
+    else:
+        year_filter_int = None
+
+    results = staff_workload_analysis(year_filter_int)
+    graph_html = ""
+
+    if results:
+        # Group by staff member to get total sessions per staff
+        staff_totals = {}
+        for result in results:
+            staff_name = result[0]  # Staff name
+            sessions = result[2]  # Total sessions
+
+            if staff_name in staff_totals:
+                staff_totals[staff_name] += sessions
+            else:
+                staff_totals[staff_name] = sessions
+
+        # Get top 15 staff members by workload
+        sorted_staff = sorted(staff_totals.items(), key=lambda x: x[1], reverse=True)[:15]
+
+        staff_names = [item[0] for item in sorted_staff]
+        session_counts = [item[1] for item in sorted_staff]
+
+        # Create Plotly Bar Graph
+        fig = go.Figure()
+
+        fig.add_trace(go.Bar(
+            x=staff_names,
+            y=session_counts,
+            name="Total Sessions",
+            marker=dict(color='lightcoral')
+        ))
+
+        # Layout Settings
+        title_text = f'Staff Workload - Top 15 Staff Members'
+        if year_filter:
+            title_text += f' ({year_filter})'
+
+        fig.update_layout(
+            title=title_text,
+            xaxis_title='Staff Members',
+            yaxis_title='Total Sessions Managed',
+            xaxis_tickangle=-45
+        )
+
+        graph_html = fig.to_html(full_html=False)
+
+    return render_template('Teacher/staff-workload.html',
+                           results=results,
+                           year_filter=year_filter,
+                           graph_html=graph_html)
+
+
+@app.route('/low-attendance', methods=['GET', 'POST'])
+def low_attendance():
+    results = []
+    year_filter = ""
+    attendance_threshold = 80
+    total_flagged = 0
+    avg_attendance_rate = 0
+    lowest_attendance_rate = 100
+
+    if request.method == 'POST':
+        year_filter = request.form.get('year_filter', '').strip()
+        attendance_threshold = request.form.get('attendance_threshold', '80').strip()
+
+        # Convert inputs
+        year_filter_int = None
+        if year_filter and year_filter != '':
+            try:
+                year_filter_int = int(year_filter)
+            except ValueError:
+                year_filter_int = None
+
+        try:
+            attendance_threshold = int(attendance_threshold)
+        except ValueError:
+            attendance_threshold = 80
+
+        results = low_attendance_students(year_filter_int, attendance_threshold)
+
+        # Calculate summary stats
+        if results:
+            total_flagged = len(results)
+            attendance_rates = [result[8] for result in results]  # attendance_percentage is at index 8
+            avg_attendance_rate = round(sum(attendance_rates) / len(attendance_rates), 1)
+            lowest_attendance_rate = min(attendance_rates)
+
+    return render_template('Teacher/low-attendance.html',
+                           results=results,
+                           year_filter=year_filter,
+                           attendance_threshold=attendance_threshold,
+                           total_flagged=total_flagged,
+                           avg_attendance_rate=avg_attendance_rate,
+                           lowest_attendance_rate=lowest_attendance_rate)
+
+
+
+
+@app.route("/student-login")
+def student_login_redirect():
+    if oidc.user_loggedin:
+        oidc_profile = session.get("oidc_auth_profile")
+
+        # Teachers can potentially log in through the school's OIDC server
+        # as well, but we only want students.
+        if oidc_profile:
+            # Check if user is a student
+            if "student_id" in oidc_profile:
+                return redirect("/student-dashboard")
+            else: #todo NEED TO FIGURE OUT WHICH OIDC RESULT IS TEACHER AND NOT JUST IF NOT STUDENT LOGIC CHANGEEE - MAYBE DELTE
+                # Teacher/staff redirect
+                return redirect("/teacher-dashboard")
+    else:
+        # Redirect to  login, then come back to home page
+        return oidc.redirect_to_auth_server("/")
+@app.route('/student-dashboard')
+def student_dashboard():
+    # Uncomment these when ready to use authentication
+    # if not oidc.user_loggedin:
+    #     return redirect("/")
+    #
+    oidc_profile = session.get("oidc_auth_profile")
+    # if "student_id" not in oidc_profile:
+    #     return redirect("/teacher-dashboard")  # Wrong user type
+    #
+    # student_id = oidc_profile.get('student_id', 'Unknown')
+
+    # forceful student id for testing
+    student_id = "443194182"  # from the anon excel sheet
+
+    # Get student info from profile
+    #student_id = oidc_profile.get('student_id', 'Unknown')
+
+    # Get student dashboard data
+    dashboard_data = get_student_dashboard_data(student_id)
+
+    # Get student's own attendance for graph
+    my_attendance_data = students_attendance(student_id)
+    my_attendance_graph = ""
+
+    if my_attendance_data:
+        # Create attendance graph for this student
+        statuses = [record[3] for record in my_attendance_data]
+        attendance_count = {"Present": 0, "Explained absence": 0, "Unexplained absence": 0}
+
+        for status in statuses:
+            if status in attendance_count:
+                attendance_count[status] += 1
+
+        # Create Plotly graph
+        fig = go.Figure()
+        fig.add_trace(go.Bar(
+            x=list(attendance_count.keys()),
+            y=list(attendance_count.values()),
+            marker=dict(color=['green', 'orange', 'red'])
+        ))
+
+        fig.update_layout(
+            title=f'My Attendance Summary',
+            xaxis_title='Status',
+            yaxis_title='Count',
+            height=400
+        )
+
+        my_attendance_graph = fig.to_html(full_html=False)
+
+    # Get recent sessions (last 10)
+    recent_sessions = my_attendance_data[-10:] if my_attendance_data else []
+
+    return render_template('Student access/student-dashboard.html',
+                           student_id=student_id,
+                           my_attendance_graph=my_attendance_graph,
+                           recent_sessions=recent_sessions,
+                           **dashboard_data)
+
+
+
+
+
+
 
 
 
@@ -473,7 +649,9 @@ def normalise_and_insert_data():
 
 
     #important to order by date so that we read the most recent records first
-    cursor.execute('SELECT * FROM staging_full_data ORDER BY date DESC')
+    cursor.execute('SELECT * FROM staging_full_data '
+                   'ORDER BY date DESC')
+
     rows = cursor.fetchall()
 
 
@@ -491,8 +669,7 @@ def normalise_and_insert_data():
             campus, gender, birthdate, secondary, email, team, activity,
             session, date, start_time, end_time, session_staff, attendance,
             for_fixture, flags, cancelled
-        ) = row
-
+        ) = parse_excel_row_flexible(row)
         # add all unique students to the student table
         if student_id not in student_cache:
             #write this student into the student table
@@ -579,7 +756,7 @@ def normalise_and_insert_data():
             # start_time_part = datetime.datetime.strptime(start_time, '%I:%M%p').time()
             # end_time_part = datetime.datetime.strptime(end_time, '%I:%M%p').time()
             # start_datetime = datetime.datetime.combine(date_part, start_time_part)
-            # end_datetime = datetime.datetime.combine(date_part, end_time_part)
+            # en d_datetime = datetime.datetime.combine(date_part, end_time_part)
 
             attendance_key = (enrollment_id, start_datetime)
             if attendance_key not in attendance_cache:
@@ -733,3 +910,20 @@ if __name__ == '__main__':
 #     return render_template('daily-attendance-dashboard.html', results=results, graph_html=graph_html, year_ID=year_ID)
 #
 
+# @app.route("/student-only-page")
+# def student_only_page():
+# 	if oidc.user_loggedin:
+# 		oidc_profile = session["oidc_auth_profile"]
+#
+# 		# Teachers can potentially log in through the school's OIDC server
+# 		# as well, but we only want students.
+# 		if "student_id" not in oidc_profile:
+# 			return "SBHS account must be for a student.", 401
+#
+# 		return f"Hello, {oidc_profile['student_id']}!"
+# 	else:
+# 		# The argument to this function is what route we want the user to be
+# 		# returned to after completing the login. In this case, this page.
+# 		return oidc.redirect_to_auth_server("/student-only-page")
+
+#end of copied auth code

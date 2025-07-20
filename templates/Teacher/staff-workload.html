@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Staff Workload Analysis - SBHS Sports Attendance{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <h1 class="mb-4">
+                <i class="fas fa-users-cog me-2"></i>
+                Staff Workload Analysis
+            </h1>
+            <p class="lead">View session management and workload distribution across staff members</p>
+        </div>
+    </div>
+
+    <!-- Search Form -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="search-card">
+                <h5>Filter by Year</h5>
+                <form method="POST" action="/staff-workload">
+                    <input type="text" class="form-control mb-2" name="year_filter" 
+                           placeholder="Enter Year (2024)" value="{{ year_filter }}">
+                    <button type="submit" class="btn btn-primary">
+                        Search
+                    </button>
+                    <br><small>Leave empty to show all years</small>
+                </form>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="search-card">
+                <h5>Generate Graph</h5>
+                <form method="POST" action="/staff-workload-graph">
+                    <input type="hidden" name="year_filter" value="{{ year_filter }}">
+                    <button type="submit" class="btn btn-success">
+                        Show Workload Graph
+                    </button>
+                    <br><small>See top staff workloads</small>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Table -->
+    {% if results %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Staff Workload Results
+                        {% if year_filter %}
+                            - Year {{ year_filter }}
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Staff Member</th>
+                                    <th>Activity/Sport</th>
+                                    <th>Total Sessions</th>
+                                    <th>Unique Dates</th>
+                                    <th>Teams Managed</th>
+                                    <th>Year</th>
+                                    <th>Semester</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in results %}
+                                <tr>
+                                    <td><strong>{{ result[0] }}</strong></td>
+                                    <td>{{ result[1] }}</td>
+                                    <td>
+                                        {% if result[2] >= 0 %}
+                                            <span class="badge bg-info">{{ result[2] }} sessions</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ result[3] }} days</td>
+                                    <td>{{ result[4] }} teams</td>
+                                    <td>{{ result[5] }}</td>
+                                    <td>{{ result[6] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Graph Section -->
+    {% if graph_html %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Staff Workload Visualisation</h3>
+                </div>
+                <div class="card-body">
+                    {{ graph_html|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Summary Stats -->
+    {% if results %}
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-chalkboard-teacher fa-2x text-primary mb-2"></i>
+                    <h4 class="card-title">{{ unique_staff_count }}</h4>
+                    <p class="card-text">Active Staff Members</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-clock fa-2x text-info mb-2"></i>
+                    <h4 class="card-title">{{ total_sessions }}</h4>
+                    <p class="card-text">Total Sessions</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-chart-line fa-2x text-warning mb-2"></i>
+                    <h4 class="card-title">{{ avg_sessions_per_staff }}</h4>
+                    <p class="card-text">Avg Sessions per Staff</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- No Results Message -->
+    {% if not results and request.method == 'POST' %}
+    <div class="alert alert-warning">
+        <strong>No staff workload data found!</strong> 
+        {% if year_filter %}
+            Try using a different year or remove the year filter.
+        {% else %}
+            No staff data available in the database.
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -181,17 +181,31 @@ h1, h2, h3, h4, h5, h6 {
     margin-top: 25px;
 }
 
-/* Mobile responsive */
-@media (max-width: 500px) {
-    .login-container {
-        padding: 30px 20px;
-        margin: 20px;
-    }
-
-    .school-logo {
-        font-size: 24px;
-    }
+.badge {
+    font-size: 0.9em;
 }
+
+.table th {
+    white-space: nowrap;
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+
+/*!* Mobile responsive *!*/
+/*@media (max-width: 500px) {*/
+/*    .login-container {*/
+/*        padding: 30px 20px;*/
+/*        margin: 20px;*/
+/*    }*/
+
+/*    .school-logo {*/
+/*        font-size: 24px;*/
+/*    }*/
+/*}*/
 
 
 

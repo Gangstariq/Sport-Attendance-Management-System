@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Low Attendance Students - SBHS Sports Attendance{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <h1 class="mb-4">
+                <i class="fas fa-search me-2"></i>
+                Low Attendance Students
+            </h1>
+            <p class="lead">Find students with attendance rates at or below your chosen threshold</p>
+        </div>
+    </div>
+
+    <!-- Search Form -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="search-card">
+                <h5>Filter Options</h5>
+                <form method="POST" action="/low-attendance">
+                    <div class="mb-2">
+                        <label>Year (Optional):</label>
+                        <input type="text" class="form-control mb-2" name="year_filter"
+                               placeholder="Enter Year (2024)" value="{{ year_filter }}">
+                    </div>
+                    <div class="mb-2">
+                        <label>Attendance Threshold (%):</label>
+                        <input type="number" class="form-control mb-2" name="attendance_threshold"
+                               placeholder="80" value="{{ attendance_threshold }}" min="1" max="100">
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        Find Students
+                    </button>
+                    <br><small>Shows students with attendance ≤ threshold %</small>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="search-card">
+                <h5>Find Specific Student</h5>
+                <div class="mb-2">
+                    <label>Search by Name:</label>
+                    <!-- CHANGED: Updated ID to match your example code -->
+                    <input type="text" class="form-control mb-2" id="searchInput"
+                           placeholder="Type student name...">
+                </div>
+                <small>Search updates automatically as you type</small>
+                <!-- ADDED: Not found message div -->
+                <div id="notFound" style="display: none;" class="alert alert-warning mt-2">
+                    No students found matching your search.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Table -->
+    {% if results %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Students with Attendance ≤ {{ attendance_threshold }}%
+                        {% if year_filter %}
+                            - Year {{ year_filter }}
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <!-- CHANGED: Updated table ID to match your example code -->
+                        <table class="table table-striped" id="searchableTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Year Group</th>
+                                    <th>Activity</th>
+                                    <th>Attendance Rate</th>
+                                    <th>Sessions (Present/Total)</th>
+                                    <th>Absences</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in results %}
+                                <!-- REMOVED: data-student-name attribute no longer needed -->
+                                <tr>
+                                    <td><strong>{{ result[1] }}</strong></td>
+                                    <td><span class="badge bg-info">{{ result[2] }}</span></td>
+                                    <td>{{ result[3] }}</td>
+                                    <td>
+                                        {% if result[8] < 85 %}
+                                            <span class="badge bg-danger">{{ result[8] }}%</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ result[8] }}%</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="status-present">{{ result[5] }}</span> / {{ result[4] }}
+                                    </td>
+                                    <td>
+                                        <small>
+                                            Explained: <span class="status-explained">{{ result[6] }}</span><br>
+                                            Unexplained: <span class="status-unexplained">{{ result[7] }}</span>
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <a href="/individual_student_attendance"
+                                           class="btn btn-sm btn-outline-primary"
+                                           onclick="submitStudentForm('{{ result[0] }}')">
+                                            View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Summary Stats -->
+    {% if results %}
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                    <h4 class="card-title">{{ total_flagged }}</h4>
+                    <p class="card-text">Students Found</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                    <h4 class="card-title">{{ avg_attendance_rate }}%</h4>
+                    <p class="card-text">Average Attendance Rate</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                    <h4 class="card-title">{{ lowest_attendance_rate }}%</h4>
+                    <p class="card-text">Lowest Attendance Rate</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- No Results Message -->
+    {% if not results and request.method == 'POST' %}
+    <div class="alert alert-success">
+        <strong>Excellent!</strong>
+        {% if year_filter %}
+            All students in {{ year_filter }} have attendance rates above {{ attendance_threshold }}%.
+        {% else %}
+            All students have attendance rates above {{ attendance_threshold }}%.
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Hidden form for student details -->
+    <form id="studentForm" method="POST" action="/individual_student_attendance" style="display: none;">
+        <input type="hidden" name="search_ID" id="hiddenStudentId">
+    </form>
+</div>
+
+<script>
+// Copied from Tutorial: https://www.youtube.com/watch?v=M3ZEy-pg4lE
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    searchTable();
+});
+
+// CHANGED: Renamed from searchStudent() to searchTable() to match your example
+function searchTable() {
+    // CHANGED: Updated variable names to match your example code exactly
+    const input = document.getElementById('searchInput');
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById('searchableTable');
+    const rows = table.getElementsByTagName('tr');
+    const notFound = document.getElementById('notFound');
+    var hasResult = false;
+
+    // LOOP THROUGH ALL ROWS EXCEPT FOR HEADERS
+    for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        let found = false;
+
+        // LOOP THROUGH ALL CELLS WITHIN THE ROW
+        for (let j = 0; j < cells.length; j++) {
+            const cellText = cells[j].textContent || cells[j].innerText;
+            if (cellText.toUpperCase().indexOf(filter) > -1) {
+                found = true;
+                hasResult = true;
+                break;
+            }
+        }
+        rows[i].style.display = found ? '' : 'none';
+    }
+    // DISPLAY NOT FOUND MESSAGE
+    (!hasResult) ? notFound.style.display = 'block' : notFound.style.display = 'none';
+}
+
+// this function is used to check individual student data by clicking on button
+function submitStudentForm(studentId) {
+    document.getElementById('hiddenStudentId').value = studentId;
+    document.getElementById('studentForm').submit();
+}
+</script>
+{% endblock %}

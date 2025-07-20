@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Sport Popularity - SBHS Sports Attendance{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <h1 class="mb-4">
+            <i class="fas fa-trophy me-2"></i>
+            Sport Popularity Report
+        </h1>
+        <p class="lead">View enrollment numbers and attendance rates across all sports</p>
+    </div>
+</div>
+
+<!-- Filter Form -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-filter me-2"></i>Filter Options</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/sport-popularity">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="year_filter" class="form-label">Filter by Year (Optional)</label>
+                                <input type="text" class="form-control" id="year_filter" name="year_filter"
+                                       placeholder="e.g., 2024" value="{{year_filter}}">
+                                <small class="form-text text-muted">Leave empty to show all years</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">&nbsp;</label>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-search me-1"></i>Filter Results
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-bar me-2"></i>Generate Graph</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/sport-popularity-graph">
+                    <input type="hidden" name="year_filter" value="{{ year_filter }}">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-chart-line me-1"></i>Show Popularity Graph
+                    </button>
+                    <small class="form-text text-muted mt-2">
+                        Generate a graph
+                    </small>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Section -->
+{% if results %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3><i class="fas fa-table me-2"></i>Sport Popularity Results</h3>
+                {% if year_filter %}
+                    <span class="badge bg-primary">Filtered by Year: {{ year_filter }}</span>
+                {% else %}
+                    <span class="badge bg-secondary">All Years</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Sport/Activity</th>
+                                <th>Total Enrolled</th>
+                                <th>Total Sessions</th>
+                                <th>Attendend Sessions</th>
+                                <th>Attendance Rate (%)</th>
+                                <th>Year</th>
+                                <th>Semester</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results %}
+                            <tr>
+                                <td><strong>{{ result[0] }}</strong></td>
+                                <td>
+                                    <span class="badge bg-info">{{ result[1] }} students</span>
+                                </td>
+                                <td>{{ result[2] }}</td>
+                                <td>{{ result[3] }}</td>
+                                <td>
+                                    {% if result[4] >= 85 %}
+                                        <span class="badge bg-success">{{ result[4] }}%</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">{{ result[4] }}%</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ result[5] }}</td>
+                                <td>Semester {{ result[6] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Graph Section -->
+{% if graph_html %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-chart-bar me-2"></i>Sport Popularity Visualisation</h3>
+            </div>
+            <div class="card-body">
+                {{ graph_html|safe }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Summary Stats -->
+{% if results %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-futbol fa-2x text-primary mb-2"></i>
+                <h4 class="card-title">{{ results|length }}</h4>    <!--gets the length of total results-->
+                <p class="card-text">Total Sports/Activities</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                <h4 class="card-title">{{ results[0][0] }}</h4>
+                <p class="card-text">Most Popular Sport</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-users fa-2x text-success mb-2"></i>
+                <h4 class="card-title">{{ results[0][1] }}</h4>
+                <p class="card-text">Highest Enrollment</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- No Results Message -->
+{% if not results and request.method == 'POST' %}
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-warning" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>No results found!</strong>
+            {% if year_filter %}
+                Try removing the year filter or using a different year.
+            {% else %}
+                There might be no sport data in the database.
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
