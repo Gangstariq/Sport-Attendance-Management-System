@@ -6,6 +6,9 @@
     <title>{% block title %}School Attendance Manager{% endblock %}</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- PWA Manifest File -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#3498db">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/static/css/style.css">
@@ -77,6 +80,14 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Plotly.js (already included in your individual pages) -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!-- Service worker for PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register("{{ url_for('static', filename='service-worker.js') }}")
+                .then(() => console.log("Service Worker Registered"))
+                .catch((err) => console.log("Service Worker Failed", err));
+        }
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

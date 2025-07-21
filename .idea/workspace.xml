@@ -4,17 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7c5038e-5449-4d4a-8500-bea8b3624c70" name="Changes" comment="-Teacher Dashboard display accurate data (no more placeholder)&#10;-Popularity Function working&#10;-Perfect Attendance Working&#10;-Staff Workload Working&#10;-Attendance filter sorter working">
+    <list default="true" id="e7c5038e-5449-4d4a-8500-bea8b3624c70" name="Changes" comment="-Fixed UI design for some pages - Scrollable tables&#10;-Search Individual student from table (JS)&#10;-">
+      <change afterPath="$PROJECT_DIR$/static/Check_192_icon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/Check_512_icon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/manifest.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/service-worker.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/functions/teacher_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/functions/teacher_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Student access/student-dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Student access/student-dashboard.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Teacher/individual_student_attendance.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/individual_student_attendance.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Teacher/low-attendance.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/low-attendance.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Teacher/perfect-attendance.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/perfect-attendance.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Teacher/sport-popularity.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/sport-popularity.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Teacher/staff-workload.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/staff-workload.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Teacher/teacher-dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/teacher-dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -100,6 +96,7 @@
       <recent name="C:\Users\tariq\PycharmProjects\DB experiments\templates" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\tariq\PycharmProjects\DB-Demo-Website\static" />
       <recent name="C:\Users\tariq\PycharmProjects\DB-Demo-Website\templates\Teacher" />
       <recent name="C:\Users\tariq\PycharmProjects\DB experiments\dataBase" />
     </key>
@@ -172,7 +169,7 @@
       <workItem from="1752804836730" duration="5172000" />
       <workItem from="1752930662723" duration="1503000" />
       <workItem from="1752971393871" duration="19593000" />
-      <workItem from="1753062799810" duration="15032000" />
+      <workItem from="1753062799810" duration="17367000" />
     </task>
     <task id="LOCAL-00001" summary="Inital Commit">
       <option name="closed" value="true" />
@@ -278,7 +275,15 @@
       <option name="project" value="LOCAL" />
       <updated>1753001264556</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="-Fixed UI design for some pages - Scrollable tables&#10;-Search Individual student from table (JS)&#10;-">
+      <option name="closed" value="true" />
+      <created>1753093608151</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1753093608151</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -307,7 +312,8 @@
     <MESSAGE value="-reworked student + teacher dashboard&#10;-added query to get high level data for dashboard&#10;-redid routing to incoporate authentication" />
     <MESSAGE value="-Refined Student Dashboard&#10;-Started On Restructuring Functions&#10;-Removing Queries From app.py" />
     <MESSAGE value="-Teacher Dashboard display accurate data (no more placeholder)&#10;-Popularity Function working&#10;-Perfect Attendance Working&#10;-Staff Workload Working&#10;-Attendance filter sorter working" />
-    <option name="LAST_COMMIT_MESSAGE" value="-Teacher Dashboard display accurate data (no more placeholder)&#10;-Popularity Function working&#10;-Perfect Attendance Working&#10;-Staff Workload Working&#10;-Attendance filter sorter working" />
+    <MESSAGE value="-Fixed UI design for some pages - Scrollable tables&#10;-Search Individual student from table (JS)&#10;-" />
+    <option name="LAST_COMMIT_MESSAGE" value="-Fixed UI design for some pages - Scrollable tables&#10;-Search Individual student from table (JS)&#10;-" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/DB_experiments$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1740913494608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
