@@ -87,7 +87,7 @@
                             <tbody>
                                 {% for session in recent_sessions %}
                                 <tr>
-                                    <td>{{ session[4] }}</td> <!-- Date -->
+                                    <td>{{ session[4][:10] }}</td> <!-- Date -->
                                     <td>{{ session[2] }}</td> <!-- Activity -->
                                     <td>
                                         {% if session[3] == 'Present' %}

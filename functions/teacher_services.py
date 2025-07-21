@@ -6,7 +6,6 @@ DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dataBase", "
 
 
 def daily_attendance_summary(year_ID):
-    """Get daily attendance summary for a specific year group"""
     #basically SUM counts how many were present/abscent that day so adds up all the '1' values
     #Case WHEN is like an if condition so if it was 'present' then set the value to 1 (present) or else o (not present)
     #AS present_count just sets it to like a variable ot make it easier ot reference and renames it
@@ -39,7 +38,7 @@ def daily_attendance_summary(year_ID):
 
 
 def activity_attendance(year_ID):
-    """Get average attendance per activity for a specific year group"""
+    #Get average attendance per activity for a specific year group
     query = """
         SELECT 
             teams.activity,
@@ -73,7 +72,7 @@ def activity_attendance(year_ID):
 
 
 def sport_attendance_by_year(year_ID):
-    """Get total sport attendance data by year group"""
+    #Get total sport attendance data by year group
     query = """
         SELECT DISTINCT students.student_id, students.year_group, teams.activity, attendance_records.attendance_status, attendance_records.session_date
         FROM students, attendance_records, enrollments, teams
@@ -94,9 +93,8 @@ def sport_attendance_by_year(year_ID):
 
 
 def get_teacher_dashboard_data():
-    """
-    Get all the data needed for teacher's dashboard
-    """
+    #Get all the data needed for teacher's dashboard
+
     connection = sqlite3.connect(DB_PATH)
     cursor = connection.cursor()
 
@@ -279,7 +277,7 @@ def perfect_attendance_students(year_filter):
 
 
 def staff_workload_analysis(year_filter):
-    """Get staff workload data - handles multiple staff names in one field"""
+    #Get staff workload data - handles multiple staff names in one field
 
     # First, get all the raw data
     query = """
@@ -377,7 +375,7 @@ def staff_workload_analysis(year_filter):
 
 
 def low_attendance_students(year_filter, attendance_threshold=85):
-    """Get students with attendance rates at or below the threshold"""
+    #Get students with attendance rates at or below the threshold
     query = """
         SELECT 
             students.student_id,
@@ -421,6 +419,55 @@ def low_attendance_students(year_filter, attendance_threshold=85):
     """
 
     params.append(attendance_threshold)
+
+    connection = sqlite3.connect(DB_PATH)
+    cursor = connection.cursor()
+    cursor.execute(query, params)
+    results = cursor.fetchall()
+    connection.close()
+    return results
+
+
+def time_slot_effectiveness(year_filter):
+    query = """
+        SELECT 
+            attendance_records.start_time,
+            attendance_records.end_time,
+            teams.activity,
+            COUNT(*) AS total_sessions,
+            COUNT(DISTINCT students.student_id) AS unique_students,
+            SUM(CASE WHEN attendance_records.attendance_status = 'Present' THEN 1 ELSE 0 END) AS present_count,
+            ROUND(
+                (SUM(CASE WHEN attendance_records.attendance_status = 'Present' THEN 1 ELSE 0 END) * 100.0) / 
+                COUNT(*)
+            , 1) AS attendance_rate,
+            COUNT(DISTINCT attendance_records.staff) AS staff_count,
+            teams.year,
+            teams.semester
+        FROM 
+            attendance_records
+        JOIN 
+            enrollments ON attendance_records.enrollment_id = enrollments.enrollment_id
+        JOIN 
+            students ON enrollments.student_id = students.student_id
+        JOIN 
+            teams ON enrollments.team_id = teams.team_id
+        WHERE 
+            attendance_records.start_time IS NOT NULL 
+            AND attendance_records.end_time IS NOT NULL
+    """
+
+    params = []
+    if year_filter:
+        query += " AND teams.year = ?"
+        params.append(year_filter)
+
+    query += """
+        GROUP BY 
+            attendance_records.start_time, attendance_records.end_time, teams.activity, teams.year, teams.semester
+        ORDER BY 
+            attendance_records.start_time, attendance_rate DESC
+    """
 
     connection = sqlite3.connect(DB_PATH)
     cursor = connection.cursor()

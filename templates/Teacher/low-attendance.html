@@ -28,7 +28,7 @@
                     <div class="mb-2">
                         <label>Attendance Threshold (%):</label>
                         <input type="number" class="form-control mb-2" name="attendance_threshold"
-                               placeholder="80" value="{{ attendance_threshold }}" min="1" max="100">
+                               placeholder="85" value="{{ attendance_threshold }}" min="1" max="100">
                     </div>
                     <button type="submit" class="btn btn-primary">
                         Find Students
@@ -43,12 +43,10 @@
                 <h5>Find Specific Student</h5>
                 <div class="mb-2">
                     <label>Search by Name:</label>
-                    <!-- CHANGED: Updated ID to match your example code -->
                     <input type="text" class="form-control mb-2" id="searchInput"
                            placeholder="Type student name...">
                 </div>
                 <small>Search updates automatically as you type</small>
-                <!-- ADDED: Not found message div -->
                 <div id="notFound" style="display: none;" class="alert alert-warning mt-2">
                     No students found matching your search.
                 </div>
@@ -69,8 +67,7 @@
                     </h3>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
-                        <!-- CHANGED: Updated table ID to match your example code -->
+                    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
                         <table class="table table-striped" id="searchableTable">
                             <thead class="table-dark">
                                 <tr>
@@ -85,7 +82,6 @@
                             </thead>
                             <tbody>
                                 {% for result in results %}
-                                <!-- REMOVED: data-student-name attribute no longer needed -->
                                 <tr>
                                     <td><strong>{{ result[1] }}</strong></td>
                                     <td><span class="badge bg-info">{{ result[2] }}</span></td>
@@ -107,11 +103,12 @@
                                         </small>
                                     </td>
                                     <td>
-                                        <a href="/individual_student_attendance"
-                                           class="btn btn-sm btn-outline-primary"
-                                           onclick="submitStudentForm('{{ result[0] }}')">
-                                            View Details
-                                        </a>
+                                        <form method="POST" action="/individual_student_attendance" style="display: inline;">
+                                            <input type="hidden" name="search_ID" value="{{ result[0] }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                View Details
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                                 {% endfor %}

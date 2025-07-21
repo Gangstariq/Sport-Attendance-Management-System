@@ -5,23 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e7c5038e-5449-4d4a-8500-bea8b3624c70" name="Changes" comment="-Teacher Dashboard display accurate data (no more placeholder)&#10;-Popularity Function working&#10;-Perfect Attendance Working&#10;-Staff Workload Working&#10;-Attendance filter sorter working">
-      <change afterPath="$PROJECT_DIR$/functions/teacher_services.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/Teacher/low-attendance.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/Teacher/perfect-attendance.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/Teacher/sport-popularity.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/Teacher/staff-workload.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/attendance_queries.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/average_attendance_per_activity.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dashboard_data.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataBase/students.db" beforeDir="false" afterPath="$PROJECT_DIR$/dataBase/students.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/functions/student_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/functions/student_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sport_popularity.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/functions/teacher_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/functions/teacher_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Student access/student-dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Student access/student-dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Teacher/individual_student_attendance.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/individual_student_attendance.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Teacher/low-attendance.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/low-attendance.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Teacher/perfect-attendance.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/perfect-attendance.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Teacher/sport-popularity.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/sport-popularity.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Teacher/staff-workload.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/staff-workload.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/Teacher/teacher-dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/teacher-dashboard.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Teacher/teacher-home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/teacher-home.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -178,7 +171,8 @@
       <workItem from="1752484008014" duration="7837000" />
       <workItem from="1752804836730" duration="5172000" />
       <workItem from="1752930662723" duration="1503000" />
-      <workItem from="1752971393871" duration="14524000" />
+      <workItem from="1752971393871" duration="19593000" />
+      <workItem from="1753062799810" duration="15032000" />
     </task>
     <task id="LOCAL-00001" summary="Inital Commit">
       <option name="closed" value="true" />
@@ -276,7 +270,15 @@
       <option name="project" value="LOCAL" />
       <updated>1752237271063</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="-Teacher Dashboard display accurate data (no more placeholder)&#10;-Popularity Function working&#10;-Perfect Attendance Working&#10;-Staff Workload Working&#10;-Attendance filter sorter working">
+      <option name="closed" value="true" />
+      <created>1753001264556</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1753001264556</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -309,6 +311,6 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/DB_experiments$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1740913494608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/DB_Demo_Website$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1752971534135" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/DB_Demo_Website$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1753068493772" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

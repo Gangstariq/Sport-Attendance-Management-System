@@ -261,59 +261,241 @@ def average_attendance_per_activity_graph():
     return render_template('Teacher/average-attendance-per-activity.html', results=results, graph_html=graph_html,
                            year_ID=year_ID)
 
+
+# @app.route('/individual_student_attendance', methods=['GET', 'POST'])
+# def individual_student_attendance():
+#     results = []
+#     graph_html = ""
+#     if request.method == 'POST':
+#         search_ID = request.form.get('search_ID', '')
+#         results = students_attendance(search_ID)
+#
+#
+#
+#     # creates attendence graph if we have data
+#     if results:
+#         #gets attendance data by date
+#         dates = [record[4] for record in results] # date - referenced above "for my own reference"
+#         statuses = [record[3] for record in results] # attendence
+#
+#         # makes bar chart data
+#         attendance_count = {"Present": 0, "Explained absence": 0, "Unexplained absence": 0}
+#         for status in statuses:
+#             if status in attendance_count:  # Only count if it's one of the two statuses
+#                 attendance_count[status] += 1
+#
+#         # ploty graph creation
+#         data = [
+#             go.Bar(
+#                 x=list(attendance_count.keys()),
+#                 y=list(attendance_count.values()),
+#                 marker=dict(color=['green', 'red', 'orange'])
+#             )
+#         ]
+#         #green = present
+#         #red = away
+#         #orange = late
+#
+#         #titlting for x and y axis and graph
+#         layout = go.Layout(
+#             title=f'Attendance Summary for Student {search_ID}', # title
+#             xaxis=dict(title='Status'),
+#             yaxis=dict(title='Count')
+#         )
+#
+#         fig = go.Figure(data=data, layout=layout)
+#         graph_html = fig.to_html(full_html=False)
+#
+#     return render_template('Teacher/individual_student_attendance.html', results=results, graph_html=graph_html) #converst graph to html graph
+
+
+# @app.route('/individual_student_attendance', methods=['GET', 'POST'])
+# def individual_student_attendance():
+#     results = []
+#     graph_html = ""
+#     search_ID = ""
+#
+#     # For reference,
+#     # record[0] = student_id
+#     # record[1] = team
+#     # record[2] = activity
+#     # record[3] = attendance (Present, Absent, late?)
+#     # record[4] = date
+#
+#     if request.method == 'POST':
+#         search_ID = request.form.get('search_ID', '')
+#
+#         # Incase other page redirects here check.
+#         if search_ID:
+#             results = students_attendance(search_ID)
+#
+#             # Create attendance graph if we have data (your existing code)
+#             if results:
+#                 # Extract attendance statuses
+#                 statuses = [record[3] for record in results]
+#                 attendance_count = {"Present": 0, "Explained absence": 0, "Unexplained absence": 0}
+#
+#                 for status in statuses:
+#                     if status in attendance_count:
+#                         attendance_count[status] += 1
+#
+#                 # Create Plotly bar chart
+#                 data = [
+#                     go.Bar(
+#                         x=list(attendance_count.keys()),
+#                         y=list(attendance_count.values()),
+#                         marker=dict(color=['green', 'orange', 'red'])
+#                     )
+#                 ]
+#
+#                 layout = go.Layout(
+#                     title=f'Attendance Summary for Student {search_ID}',
+#                     xaxis=dict(title='Status'),
+#                     yaxis=dict(title='Count')
+#                 )
+#
+#                 fig = go.Figure(data=data, layout=layout)
+#                 graph_html = fig.to_html(full_html=False)
+#
+#     # Pass search_ID to template so form shows the searched student ID
+#     return render_template('Teacher/individual_student_attendance.html',
+#                            results=results,
+#                            graph_html=graph_html,
+#                            search_ID=search_ID) #todo replace this back
+
+
 @app.route('/individual_student_attendance', methods=['GET', 'POST'])
 def individual_student_attendance():
     results = []
+    filtered_results = []
     graph_html = ""
+    search_ID = ""
+    student_name = ""
+    attendance_stats = {}
+    unique_activities = []
+    date_range_start = ""
+    date_range_end = ""
+    activity_filter = ""
+    status_filter = ""
+
     if request.method == 'POST':
         search_ID = request.form.get('search_ID', '')
-        results = students_attendance(search_ID)
+        activity_filter = request.form.get('activity_filter', '')
+        status_filter = request.form.get('status_filter', '')
 
-    # for my own reference
-    # record[0] = student_id
-    # record[1] = team
-    # record[2] = activity
-    # record[3] = attendance (Present, Absent, late?)
-    # record[4] = date
+        if search_ID:
+            results = students_attendance(search_ID)
 
-    # creates attendence graph if we have data
-    if results:
-        #gets attendance data by date
-        dates = [record[4] for record in results] # date - referenced above "for my own reference"
-        statuses = [record[3] for record in results] # attendence
+            if results:
+                # Get student name
+                student_name = f"Student {search_ID}"
 
-        # makes bar chart data
-        attendance_count = {"Present": 0, "Explained absence": 0, "Unexplained absence": 0}
-        for status in statuses:
-            if status in attendance_count:  # Only count if it's one of the two statuses
-                attendance_count[status] += 1
+                # apply filters
+                filtered_results = []
+                for result in results:
+                    should_include = True
+                    # if there is an activity filter and its not in results remove it so filter it out
+                    if activity_filter and activity_filter not in result[2]:
+                        should_include = False
 
-        # ploty graph creation
-        data = [
-            go.Bar(
-                x=list(attendance_count.keys()),
-                y=list(attendance_count.values()),
-                marker=dict(color=['green', 'red', 'orange'])
-            )
-        ]
-        #green = present
-        #red = away
-        #orange = late
+                    # same for status
+                    if status_filter and status_filter not in result[3]:
+                        should_include = False
 
-        #titlting for x and y axis and graph
-        layout = go.Layout(
-            title=f'Attendance Summary for Student {search_ID}', # title
-            xaxis=dict(title='Status'),
-            yaxis=dict(title='Count')
-        )
+                    # if the results are what the filter is just add it tot he filtered resutls
+                    if should_include:
+                        filtered_results.append(result)
 
-        fig = go.Figure(data=data, layout=layout)
-        graph_html = fig.to_html(full_html=False)
+                # calculate attendance statistics
+                present_count = 0
+                explained_count = 0
+                unexplained_count = 0
 
-    return render_template('Teacher/individual_student_attendance.html', results=results, graph_html=graph_html) #converst graph to html graph
+                for result in results:
+                    if result[3] == "Present":
+                        present_count += 1
+                    elif result[3] == "Explained absence":
+                        explained_count += 1
+                    elif result[3] == "Unexplained absence":
+                        unexplained_count += 1
+
+                total_sessions = len(results)
+                if total_sessions > 0:
+                    attendance_percentage = round((present_count / total_sessions * 100), 1)
+                else:
+                    attendance_percentage = 0
+
+                attendance_stats = {
+                    'present': present_count,
+                    'explained': explained_count,
+                    'unexplained': unexplained_count,
+                    'percentage': attendance_percentage
+                }
+
+                # Get unique activities using basic loops
+                unique_activities = []
+                for result in results:
+                    activity = result[2]
+                    if activity not in unique_activities:
+                        unique_activities.append(activity)
+                unique_activities.sort()
+
+                # Get date range using basic loops
+                if results:
+                    dates = []
+                    for result in results:
+                        date_part = result[4][:10]  # Get just the date part
+                        dates.append(date_part)
+
+                    date_range_start = min(dates)
+                    date_range_end = max(dates)
+
+                # Create Plotly graph
+                data = [
+                    go.Bar(
+                        x=["Present", "Explained absence", "Unexplained absence"],
+                        y=[present_count, explained_count, unexplained_count],
+                        marker=dict(color=['green', 'orange', 'red'])
+                    )
+                ]
+
+                layout = go.Layout(
+                    title=f'Attendance Summary for {student_name}',
+                    xaxis=dict(title='Status'),
+                    yaxis=dict(title='Count')
+                )
+
+                fig = go.Figure(data=data, layout=layout)
+                graph_html = fig.to_html(full_html=False)
+            else:
+                student_name = "Student Not Found"
+                filtered_results = []
+
+    return render_template('Teacher/individual_student_attendance.html',
+                           results=results,
+                           filtered_results=filtered_results,
+                           graph_html=graph_html,
+                           search_ID=search_ID,
+                           student_name=student_name,
+                           attendance_stats=attendance_stats,
+                           unique_activities=unique_activities,
+                           date_range_start=date_range_start,
+                           date_range_end=date_range_end,
+                           activity_filter=activity_filter,
+                           status_filter=status_filter)
 
 
+@app.route('/test-student/<student_id>')
+def test_student_lookup(student_id): #todo remove this later
+    """Test if student lookup is working"""
+    results = students_attendance(student_id)
 
+    return {
+        'student_id_tested': student_id,
+        'results_count': len(results),
+        'sample_results': results[:3] if results else [],
+        'function_used': 'students_attendance'
+    }
 
 
 
@@ -423,6 +605,11 @@ def perfect_attendance():
 def staff_workload():
     results = []
     year_filter = ""
+    unique_staff_count = 0
+    total_sessions = 0
+    avg_sessions_per_staff = 0
+
+
 
     if request.method == 'POST':
         year_filter = request.form.get('year_filter', '').strip()
@@ -438,7 +625,26 @@ def staff_workload():
 
         results = staff_workload_analysis(year_filter_int)
 
-    return render_template('Teacher/staff-workload.html', results=results, year_filter=year_filter)
+        if results:
+            staff = []
+
+            for result in results:
+                staff_name = result[0]
+                sessions = result[2]
+                if staff_name not in staff:
+                    staff.append(staff_name)
+
+                total_sessions += sessions
+
+
+            unique_staff_count = len(staff)
+
+            if unique_staff_count > 0:
+                avg_sessions_per_staff = round(total_sessions / unique_staff_count)
+            else:
+                avg_sessions_per_staff = 0
+
+    return render_template('Teacher/staff-workload.html', results=results, year_filter=year_filter, unique_staff_count=unique_staff_count, total_sessions=total_sessions, avg_sessions_per_staff=avg_sessions_per_staff)
 @app.route('/staff-workload-graph', methods=['POST'])
 def staff_workload_graph():
     year_filter = request.form.get('year_filter', '').strip()
@@ -507,7 +713,7 @@ def staff_workload_graph():
 def low_attendance():
     results = []
     year_filter = ""
-    attendance_threshold = 80
+    attendance_threshold = 85
     total_flagged = 0
     avg_attendance_rate = 0
     lowest_attendance_rate = 100
@@ -527,7 +733,7 @@ def low_attendance():
         try:
             attendance_threshold = int(attendance_threshold)
         except ValueError:
-            attendance_threshold = 80
+            attendance_threshold = 85
 
         results = low_attendance_students(year_filter_int, attendance_threshold)
 

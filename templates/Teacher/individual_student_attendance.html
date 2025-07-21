@@ -12,7 +12,7 @@
                 <div class="col-md-8">
                     <label for="search_ID" class="form-label">Enter a Student's ID Number:</label>
                     <input type="text" class="form-control" id="search_ID" name="search_ID" required
-                           placeholder="e.g., 443483420" value="{{ request.form.get('search_ID', '') }}">
+                           placeholder="e.g., 443194182" value="{{ search_ID }}">
                 </div>
                 <div class="col-md-4 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary w-100">
@@ -25,11 +25,66 @@
 </div>
 
 {% if results %}
-<div class="row">
-    <div class="col-lg-12 mb-4">
+<!-- Student Info Header -->
+<div class="row mb-3">
+    <div class="col-lg-12">
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Viewing attendance for: {{ student_name }} (ID: {{ search_ID }})</strong>
+            <span class="float-end">
+                <small>Total Records: {{ results|length }} |
+                Date Range: {{ date_range_start }} to {{ date_range_end }}</small>
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats Row -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                <h4 class="card-title text-success">{{ attendance_stats.present }}</h4>
+                <p class="card-text">Present</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-exclamation-circle fa-2x text-warning mb-2"></i>
+                <h4 class="card-title text-warning">{{ attendance_stats.explained }}</h4>
+                <p class="card-text">Explained Absence</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-times-circle fa-2x text-danger mb-2"></i>
+                <h4 class="card-title text-danger">{{ attendance_stats.unexplained }}</h4>
+                <p class="card-text">Unexplained Absence</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-percentage fa-2x text-primary mb-2"></i>
+                <h4 class="card-title text-primary">{{ attendance_stats.percentage }}%</h4>
+                <p class="card-text">Attendance Rate</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart Section -->
+<div class="row mb-4">
+    <div class="col-lg-12">
         <div class="card">
             <div class="card-header">
-                <h2 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Attendance Summary</h2>
+                <h3 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Attendance Summary</h3>
             </div>
             <div class="card-body">
                 {{ graph_html | safe }}
@@ -38,16 +93,69 @@
     </div>
 </div>
 
-<div class="row">
+<!-- Filters (Server-side using forms) -->
+<div class="row mb-3">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h6><i class="fas fa-filter me-2"></i>Filter Records</h6>
+                <form method="POST" action="/individual_student_attendance" class="row">
+                    <input type="hidden" name="search_ID" value="{{ search_ID }}">
+                    <div class="col-md-4">
+                        <select class="form-select form-select-sm" name="activity_filter">
+                            <option value="">All Activities</option>
+                            {% for activity in unique_activities %}
+                                <option value="{{ activity }}" {% if activity_filter == activity %}selected{% endif %}>{{ activity }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-select form-select-sm" name="status_filter">
+                            <option value="">All Statuses</option>
+                            <option value="Present" {% if status_filter == "Present" %}selected{% endif %}>Present</option>
+                            <option value="Explained absence" {% if status_filter == "Explained absence" %}selected{% endif %}>Explained Absence</option>
+                            <option value="Unexplained absence" {% if status_filter == "Unexplained absence" %}selected{% endif %}>Unexplained Absence</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-sm btn-primary w-100">Apply Filters</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h6><i class="fas fa-eye me-2"></i>View Options</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-sm btn-outline-secondary w-100" onclick="toggleTable()">
+                            <i class="fas fa-eye-slash me-1"></i><span id="toggleText">Hide</span> Details
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button id="btnExportToCsv" type="button" class="btn btn-sm btn-outline-info w-100">
+                            <i class="fas fa-download me-1"></i>Export CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Records Table -->
+<div class="row" id="detailsTable">
     <div class="col-lg-12">
         <div class="card">
             <div class="card-header">
-                <h2 class="mb-0"><i class="fas fa-list me-2"></i>Attendance Records</h2>
+                <h3 class="mb-0"><i class="fas fa-list me-2"></i>Detailed Attendance Records</h3>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead class="table-primary">
+                <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+                    <table id="dataTable" class="table table-striped table-hover table-sm">
+                        <thead class="table-dark sticky-top">
                             <tr>
                                 <th>Student ID</th>
                                 <th>Team</th>
@@ -57,21 +165,23 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for record in results %}
+                            {% for record in filtered_results %}
                                 <tr>
                                     <td>{{ record[0] }}</td>
                                     <td>{{ record[1] }}</td>
                                     <td>{{ record[2] }}</td>
                                     <td>
                                         {% if record[3] == "Present" %}
-                                            <span class="status-present"><i class="fas fa-check-circle me-1"></i>{{ record[3] }}</span>
+                                            <span class="badge bg-success"><i class="fas fa-check me-1"></i>{{ record[3] }}</span>
                                         {% elif record[3] == "Explained absence" %}
-                                            <span class="status-explained"><i class="fas fa-exclamation-circle me-1"></i>{{ record[3] }}</span>
+                                            <span class="badge bg-warning"><i class="fas fa-exclamation me-1"></i>Explained</span>
                                         {% else %}
-                                            <span class="status-unexplained"><i class="fas fa-times-circle me-1"></i>{{ record[3] }}</span>
+                                            <span class="badge bg-danger"><i class="fas fa-times me-1"></i>Unexplained</span>
                                         {% endif %}
                                     </td>
-                                    <td>{{ record[4] }}</td>
+                                    <td>
+                                        {{ record[4][:10] }}
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -81,58 +191,84 @@
         </div>
     </div>
 </div>
+
 {% elif request.method == 'POST' %}
 <div class="alert alert-warning">
-    <i class="fas fa-exclamation-triangle me-2"></i>No results found for this student ID. Please check the ID and try again.
+    <i class="fas fa-exclamation-triangle me-2"></i>No results found for Student ID "{{ search_ID }}". Please check the ID and try again.
 </div>
 {% endif %}
-{% endblock %}
 
-{#<!DOCTYPE html>#}
-{#<html lang="en">#}
-{#<head>#}
-{#    <meta charset="UTF-8">#}
-{#    <meta name="viewport" content="width-device-width, initial-scale=1.0">#}
-{#    <title>Student Attendance Search</title>#}
-{#    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>#}
-{#</head>#}
-{#<body>#}
-{#    <h1>Search A Specific Student's attendance history</h1>#}
-{#    <form method="POST" action="/individual_student_attendance">#}
-{#        <label for="search_ID">Enter a students ID number:</label>#}
-{#        <input type="text" id="search_ID" name="search_ID" required>#}
-{#        <button type="submit">Search</button>#}
-{#    </form>#}
-{##}
-{##}
-{##}
-{#    {% if results %}#}
-{#        <h2>Attendance Summary</h2>#}
-{#        {{ graph_html | safe }}#}
-{##}
-{#        <h2>Attendance Records</h2>#}
-{#        <table border="1">#}
-{#            <thead>#}
-{#                <tr>#}
-{#                    <th>Student ID</th>#}
-{#                    <th>Activity</th>#}
-{#                    <th>Attendance</th>#}
-{#                    <th>Date</th>#}
-{#                </tr>#}
-{#            </thead>#}
-{#            <tbody>#}
-{#                {% for record in results %}#}
-{#                    <tr>#}
-{#                        <td>{{ record[0] }}</td>#}
-{#                        <td>{{ record[1] }}</td>#}
-{#                        <td>{{ record[2] }}</td>#}
-{#                        <td>{{ record[3] }}</td>#}
-{#                    </tr>#}
-{#                {% endfor %}#}
-{#            </tbody>#}
-{#        </table>#}
-{#    {% else %}#}
-{#        <p>No results found.</p>#}
-{#    {% endif %}#}
-{#</body>#}
-{#</html>#}
+
+<script>
+// toggle table function - https://www.w3schools.com/howto/howto_js_toggle_hide_show.asp, adapted it to hide the text asw
+function toggleTable() {
+    const table = document.getElementById('detailsTable');
+    const toggleText = document.getElementById('toggleText');
+
+    if (table.style.display === 'none') {
+        table.style.display = 'block';
+        toggleText.textContent = 'Hide';
+    } else {
+        table.style.display = 'none';
+        toggleText.textContent = 'Show';
+    }
+}
+
+
+
+
+// Copied: https://www.youtube.com/watch?v=cpHCv3gbPuk
+const dataTable = document.getElementById("dataTable");
+const btnExportToCsv = document.getElementById("btnExportToCsv");
+btnExportToCsv.addEventListener("click", () => {
+    const exporter = new TableCSVExporter(dataTable);
+    const csvOutput = exporter.convertToCSV();
+    const csvBlob = new Blob([csvOutput], { type: "text/csv" });
+    const blobUrl = URL.createObjectURL(csvBlob);
+    const anchorElement = document.createElement("a");
+    anchorElement.href = blobUrl;
+    anchorElement.download = "student_attendance_{{ search_ID }}.csv";
+    anchorElement.click();
+    setTimeout(() => {
+        URL.revokeObjectURL(blobUrl);
+    }, 500);
+});
+
+// Copied from code
+class TableCSVExporter {
+    constructor (table, includeHeaders = true) {
+        this.table = table;
+        this.rows = Array.from(table.querySelectorAll("tr"));
+        if (!includeHeaders && this.rows[0].querySelectorAll("th").length) {
+            this.rows.shift();
+        }
+    }
+    convertToCSV () {
+        const lines = [];
+        const numCols = this._findLongestRowLength();
+        for (const row of this.rows) {
+            let line = "";
+            for (let i = 0; i < numCols; i++) {
+                if (row.children[i] !== undefined) {
+                    line += TableCSVExporter.parseCell(row.children[i]);
+                }
+                line += (i !== (numCols - 1)) ? "," : "";
+            }
+            lines.push(line);
+        }
+        return lines.join("\n");
+    }
+    _findLongestRowLength () {
+        return this.rows.reduce((l, row) => row.childElementCount > l ? row.childElementCount : l, 0);
+    }
+    static parseCell (tableCell) {
+        let parsedValue = tableCell.textContent;
+        // Replace all double quotes with two double quotes
+        parsedValue = parsedValue.replace(/"/g, `""`);
+        // If value contains comma, new-line or double-quote, enclose in double quotes
+        parsedValue = /[",\n]/.test(parsedValue) ? `"${parsedValue}"` : parsedValue;
+        return parsedValue;
+    }
+}
+</script>
+{% endblock %}
