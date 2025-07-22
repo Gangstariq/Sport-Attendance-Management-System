@@ -5,7 +5,7 @@ const STATIC_ASSETS = [
     "/static/Check_192_icon.png",
     "/static/Check_512_icon.png"
 ];
-
+//#https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Manifest/Reference/display - Tutorial Used
 // Install Service Worker
 self.addEventListener("install", (event) => {
     event.waitUntil(

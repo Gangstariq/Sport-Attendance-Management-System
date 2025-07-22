@@ -4,12 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7c5038e-5449-4d4a-8500-bea8b3624c70" name="Changes" comment="-Fixed UI design for some pages - Scrollable tables&#10;-Search Individual student from table (JS)&#10;-">
-      <change afterPath="$PROJECT_DIR$/static/Check_192_icon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/Check_512_icon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/manifest.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/service-worker.js" afterDir="false" />
+    <list default="true" id="e7c5038e-5449-4d4a-8500-bea8b3624c70" name="Changes" comment="-Added a manifest json and service worker to make this a pwa">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/service-worker.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/service-worker.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Teacher/average-attendance-per-activity.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/average-attendance-per-activity.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Teacher/daily-attendance-dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/daily-attendance-dashboard.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -169,7 +170,8 @@
       <workItem from="1752804836730" duration="5172000" />
       <workItem from="1752930662723" duration="1503000" />
       <workItem from="1752971393871" duration="19593000" />
-      <workItem from="1753062799810" duration="17367000" />
+      <workItem from="1753062799810" duration="19570000" />
+      <workItem from="1753164921767" duration="6612000" />
     </task>
     <task id="LOCAL-00001" summary="Inital Commit">
       <option name="closed" value="true" />
@@ -283,7 +285,15 @@
       <option name="project" value="LOCAL" />
       <updated>1753093608151</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="-Added a manifest json and service worker to make this a pwa">
+      <option name="closed" value="true" />
+      <created>1753096097733</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1753096097733</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -313,10 +323,11 @@
     <MESSAGE value="-Refined Student Dashboard&#10;-Started On Restructuring Functions&#10;-Removing Queries From app.py" />
     <MESSAGE value="-Teacher Dashboard display accurate data (no more placeholder)&#10;-Popularity Function working&#10;-Perfect Attendance Working&#10;-Staff Workload Working&#10;-Attendance filter sorter working" />
     <MESSAGE value="-Fixed UI design for some pages - Scrollable tables&#10;-Search Individual student from table (JS)&#10;-" />
-    <option name="LAST_COMMIT_MESSAGE" value="-Fixed UI design for some pages - Scrollable tables&#10;-Search Individual student from table (JS)&#10;-" />
+    <MESSAGE value="-Added a manifest json and service worker to make this a pwa" />
+    <option name="LAST_COMMIT_MESSAGE" value="-Added a manifest json and service worker to make this a pwa" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/DB_experiments$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1740913494608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/DB_Demo_Website$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1753068493772" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/DB_Demo_Website$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1753164922733" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

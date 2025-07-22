@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask, render_template, request, jsonify, session, appcontext_popped
 import sqlite3
 import os
 from werkzeug.utils import secure_filename
@@ -34,6 +34,48 @@ app.config["OIDC_SCOPES"] = "openid profile"
 # Prefix the routes added by this library to prevent any
 # collisions with our routes.
 oidc = OpenIDConnect(app, prefix="/oidc/")
+
+
+@app.context_processor
+def inject_test_user_info(): #Only for testing bcause theres no actual teacher ID testing
+    return {
+        'is_logged_in': True,
+        'user_type': 'teacher',  # Change to 'student' to test student navbar
+        'user_name': 'Test Teacher',
+        # 'user_id': 'test@sbhs.nsw.edu.au'
+    }
+
+# @app.context_processor #renders information which all templates can access as like context before doing anything
+# def inject_user_info(): #function enables for different nav bars
+#
+#     # Check if user is logged in
+#     is_logged_in = False
+#     user_type = None
+#     user_name = None
+#     user_id = None
+#
+#     if oidc.user_loggedin:
+#         is_logged_in = True
+#         oidc_profile = session.get("oidc_auth_profile")
+#
+#         if oidc_profile:
+#             # Check if it's a student (has student_id)
+#             if "student_id" in oidc_profile:
+#                 user_type = "student"
+#                 user_id = oidc_profile.get('student_id')
+#                 user_name = oidc_profile.get('name', 'Student')
+#             else:
+#                 # It's a teacher/staff
+#                 user_type = "teacher"
+#                 user_name = oidc_profile.get('name', 'Teacher')
+#
+#     return {
+#         'is_logged_in': is_logged_in,
+#         'user_type': user_type,
+#         'user_name': user_name,
+#         'user_id': user_id
+#     }
+
 
 #Functions NOT related to routing
 def parse_date_flexible(date_string):
@@ -183,6 +225,7 @@ def daily_attendance_graph():
     graph_html = ""
     year_ID = ""
 
+
     if request.method == 'POST':
         # Get the year_ID from the form input
         year_ID = request.form.get('year_ID', '')
@@ -190,7 +233,7 @@ def daily_attendance_graph():
 
         if results:
             # Extract data for the graph
-            dates = [record[0] for record in results]  # Date column
+            dates = [record[0][:10] for record in results]  # Date column
             present_counts = [record[1] for record in results]  # Present students count
             explained_abs_counts = [record[2] for record in results]  # Explained absences
             unexplained_abs_counts = [record[3] for record in results]  # Unexplained absences
