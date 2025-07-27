@@ -12,8 +12,13 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/static/css/style.css">
+    <!--Google Font-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
-<body>
+
+<body class="font-{{ session.font_choice }}">
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <div class="container">
@@ -27,14 +32,14 @@
                 <i class="fas fa-calendar-check me-2"></i>Attendance Manager
             </a>
 
-            <!--  Hamburger menu button -->
+            <!--  menu button -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                <!-- Left side for the navigation stuff -->
+                <!-- navigation features -->
                 <ul class="navbar-nav me-auto">
                     {% if user_type == 'teacher' %}
                         <!-- if user is teacher have all the features -->
@@ -72,6 +77,9 @@
                                 <li><a class="dropdown-item" href="/staff-workload">
                                     <i class="fas fa-users-cog me-2"></i>Staff Workload
                                 </a></li>
+                                <li><a class="dropdown-item" href="/attendance-streaks">
+                                    <i class="fas fa-solid fa-fire me-2"></i>Attendance Streaks
+                                </a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="/upload">
                                     <i class="fas fa-upload me-2"></i>Upload Data
@@ -88,7 +96,7 @@
                     {% endif %}
                 </ul>
 
-                <!-- Right side - User info and logout -->
+                <!-- user info, settings and logout -->
                 <ul class="navbar-nav ms-auto">
                     {% if is_logged_in %}
                         <!-- User info -->
@@ -103,6 +111,9 @@
                                 <li><a class="dropdown-item" href="#" onclick="return false;">
                                     <i class="fas fa-info-circle me-2"></i>
                                     {% if user_type == 'teacher' %}Teacher Account{% else %}Student ID: {{ user_id or 'Unknown' }}{% endif %}
+                                </a></li>
+                                <li><a class="dropdown-item" href="/settings">
+                                    <i class="fas fa-cog me-3"></i>Settings
                                 </a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="/logout">
@@ -145,5 +156,5 @@
         }
     </script>
     {% block extra_js %}{% endblock %}
-</body>
+</>
 </html>

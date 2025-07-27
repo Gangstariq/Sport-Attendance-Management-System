@@ -196,5 +196,31 @@ h1, h2, h3, h4, h5, h6 {
 
 
 
+/*Font CSS stuff*/
 
-
+@font-face {
+    font-family: 'OpenDyslexic';
+    src: url('/static/fonts/OpenDyslexic-Regular.otf') format('opentype');
+}
+.font-opendyslexic {
+    font-family: 'OpenDyslexic', Arial, sans-serif !important;
+}
+/*https://fonts.google.com/selection/embed */
+.font-roboto {
+  font-family: "Roboto", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: <weight>;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+}
+/*The button for the settings css */
+.syllabus-button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 5rem;
+        }
+        .syllabus-button {
+            margin-top: 1rem;
+        }

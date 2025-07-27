@@ -12,7 +12,21 @@ from flask import Flask, redirect, url_for
 
 #imports of other python functions:
 from functions.student_services import students_attendance, get_student_dashboard_data
-from functions.teacher_services import daily_attendance_summary, activity_attendance, sport_attendance_by_year, get_teacher_dashboard_data, get_sport_popularity, perfect_attendance_students, staff_workload_analysis, low_attendance_students
+# from functions.teacher_services import (daily_attendance_summary, activity_attendance,
+#                                         sport_attendance_by_year, get_teacher_dashboard_data,
+#                                         get_sport_popularity, perfect_attendance_students,
+#                                         staff_workload_analysis, low_attendance_students, attendance_streak_tracker,
+#                                         calculate_student_streaks, get_single_student_attendance, get_available_teams,
+#                                         get_team_attendance_data, get_team_summary_stats, get_unique_filter_options,
+#                                         get_team_player_stats)
+
+from functions.teacher_services import (daily_attendance_summary, activity_attendance,
+    sport_attendance_by_year, get_teacher_dashboard_data, get_sport_popularity,
+    perfect_attendance_students, staff_workload_analysis, low_attendance_students,
+    attendance_streak_tracker, calculate_student_streaks, get_single_student_attendance,
+    get_available_teams, get_team_attendance_data, get_team_summary_stats,
+    get_team_player_stats, get_unique_filter_options)
+
 
 
 
@@ -42,7 +56,7 @@ def inject_test_user_info(): #Only for testing bcause theres no actual teacher I
         'is_logged_in': True,
         'user_type': 'teacher',  # Change to 'student' to test student navbar
         'user_name': 'Test Teacher',
-        # 'user_id': 'test@sbhs.nsw.edu.au'
+
     }
 
 # @app.context_processor #renders information which all templates can access as like context before doing anything
@@ -162,6 +176,8 @@ def parse_excel_row_flexible(row):
         session, date, start_time, end_time, session_staff, attendance,
         for_fixture, flags, cancelled
     )
+
+
 #Routing:
 @app.route('/', methods=['GET'])
 def home():
@@ -181,11 +197,24 @@ def home():
     return render_template('home.html')
 
 @app.route('/logout')
-def logout_simple():
+def logout():
     oidc.logout()
     session.clear()
     return redirect("/")
 
+@app.route('/settings')
+def settings():
+    return render_template('settings.html')
+
+@app.route('/update_settings', methods=['POST'])
+def update_settings():
+    # Get font choice from form
+    font_choice = request.form.get('font_choice', 'default')
+
+    # Store setting in session
+    session['font_choice'] = font_choice
+
+    return redirect(url_for('settings'))
 
 
 @app.route('/teacher-dashboard')
@@ -796,6 +825,158 @@ def low_attendance():
                            lowest_attendance_rate=lowest_attendance_rate)
 
 
+@app.route('/attendance-streaks', methods=['GET', 'POST'])
+def attendance_streaks():
+    results = []
+    year_filter = ""
+    total_students = 0
+    longest_streak_ever = 0
+    avg_current_streak = 0
+    students_with_active_streaks = 0
+
+    if request.method == 'POST':
+        year_filter = request.form.get('year_filter', '').strip()
+
+        # Convert to int if provided and not empty, otherwise None
+        if year_filter and year_filter != '':
+            try:
+                year_filter_int = int(year_filter)
+            except ValueError:
+                year_filter_int = None
+        else:
+            year_filter_int = None
+
+        # get the streak data
+        results = attendance_streak_tracker(year_filter_int)
+
+        #  summary stats
+        if results:
+            total_students = len(results)
+            total_current_streaks = 0 # used for the averages stuff
+            students_with_active_streaks = 0
+            longest_streak_ever = 0 #total out of all students
+
+            for student in results:
+                current_streak = student['current_streak']
+                longest_streak = student['longest_streak']
+
+                # Add to totals
+                total_current_streaks += current_streak
+
+                # students with at least 1 steak
+                if current_streak > 0:
+                    students_with_active_streaks += 1
+
+                # Check if this is the longest streak ever
+                if longest_streak > longest_streak_ever:
+                    longest_streak_ever = longest_streak
+
+            # Calculate average current streak
+            if total_students > 0:
+                avg_current_streak = round(total_current_streaks / total_students, 1)
+
+            # Sort results by current streak (highest first)
+            results.sort(key=lambda x: x['current_streak'], reverse=True)
+
+    return render_template('Teacher/attendance-streaks.html',
+                           results=results,
+                           year_filter=year_filter,
+                           total_students=total_students,
+                           longest_streak_ever=longest_streak_ever,
+                           avg_current_streak=avg_current_streak,
+                           students_with_active_streaks=students_with_active_streaks)
+
+
+@app.route('/team-attendance', methods=['GET', 'POST'])
+def team_attendance():
+    teams = []
+    year_filter = ""
+    semester_filter = ""
+    activity_filter = ""
+
+    # Get filter options for dropdowns
+    filter_options = get_unique_filter_options()
+
+    if request.method == 'POST':
+        year_filter = request.form.get('year_filter', '').strip()
+        semester_filter = request.form.get('semester_filter', '').strip()
+        activity_filter = request.form.get('activity_filter', '').strip()
+
+        # Convert filters to appropriate types
+        if year_filter:
+            year_filter_int = int(year_filter)
+        else:
+            year_filter_int = None
+        semester_filter_int = int(semester_filter) if semester_filter else None
+        activity_filter_str = activity_filter if activity_filter else None
+
+        teams = get_available_teams(year_filter_int, semester_filter_int, activity_filter_str)
+
+    return render_template('Teacher/team-attendance.html',
+                           teams=teams,
+                           year_filter=year_filter,
+                           semester_filter=semester_filter,
+                           activity_filter=activity_filter,
+                           filter_options=filter_options)
+
+
+@app.route('/team-dashboard/<int:team_id>')
+def team_dashboard(team_id):
+
+    # Get team summary stats
+    team_summary = get_team_summary_stats(team_id)
+    if not team_summary:
+        return "Team not found", 404
+
+    # Get individual player stats
+    player_stats = get_team_player_stats(team_id)
+
+    # Get all attendance records for the team
+    attendance_data = get_team_attendance_data(team_id)
+
+    # Create attendance graph
+    graph_html = ""
+    if attendance_data:
+        # Count attendance by status
+        present_count = 0
+        explained_count = 0
+        unexplained_count = 0
+
+        for record in attendance_data:
+            status = record[8]  # attendance_status
+            if status == "Present":
+                present_count += 1
+            elif status == "Explained absence":
+                explained_count += 1
+            elif status == "Unexplained absence":
+                unexplained_count += 1
+
+        # Create Plotly graph
+        fig = go.Figure()
+        fig.add_trace(go.Bar(
+            x=["Present", "Explained Absence", "Unexplained Absence"],
+            y=[present_count, explained_count, unexplained_count],
+            marker=dict(color=['green', 'orange', 'red'])
+        ))
+
+        fig.update_layout(
+            title=f'Team Attendance Overview - {team_summary[0]}',
+            xaxis_title='Attendance Status',
+            yaxis_title='Number of Sessions',
+            height=400
+        )
+
+        graph_html = fig.to_html(full_html=False)
+
+    # Get recent sessions (last 10)
+    recent_sessions = attendance_data[-10:] if attendance_data else []
+
+    return render_template('Teacher/team-dashboard.html',
+                           team_summary=team_summary,
+                           player_stats=player_stats,
+                           graph_html=graph_html,
+                           recent_sessions=recent_sessions,
+                           team_id=team_id)
 
 
 @app.route("/student-login")
@@ -836,6 +1017,10 @@ def student_dashboard():
     # Get student dashboard data
     dashboard_data = get_student_dashboard_data(student_id)
 
+    #for streaks
+    streak_data = get_single_student_attendance(student_id)
+
+
     # Get student's own attendance for graph
     my_attendance_data = students_attendance(student_id)
     my_attendance_graph = ""
@@ -872,7 +1057,7 @@ def student_dashboard():
     return render_template('Student access/student-dashboard.html',
                            student_id=student_id,
                            my_attendance_graph=my_attendance_graph,
-                           recent_sessions=recent_sessions,
+                           recent_sessions=recent_sessions, streak_data=streak_data,
                            **dashboard_data)
 
 
@@ -887,8 +1072,29 @@ def student_dashboard():
 
 
 
-
-
+#NORMALISED BASE STRUCTURE
+# students table:
+# - student_id (E.g "443483518")
+# - full_name (E.g "John Smith")
+# - year_group (E.g "Year 9")
+#
+# teams table:
+# - team_id (auto generated number like 1, 2, 3...)
+# - team_name (E.g "14  Team")
+# - activity (E.g "Football")
+# - year (E.g 2024)
+# - semester (like 1 or 2)
+# - head_coach (Null cause the data doesn't provde it)
+#
+# enrollments table (the connector):
+# - enrollment_id (auto generated)
+# - student_id (connects to students table)
+# - team_id (connects to teams table)
+#
+# attendance_records table:
+# - enrollment_id (connects to enrollments table)
+# - session_date (E.g "2024-03-15")
+# - attendance_status (E.g "Present", "Explained absence", "Unexplained absence")
 
 
 def normalise_and_insert_data():
@@ -1022,8 +1228,6 @@ def normalise_and_insert_data():
     #capture attendance for each session (attendance_record table)
 
     conn.close()
-
-
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'GET':

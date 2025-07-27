@@ -6,3 +6,5 @@ dist/
 htmlcov/
 .tox/
 docs/_build/
+client_secrets.json
+uploads/*

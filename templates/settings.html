@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Settings {% endblock %}
+
+{% block content %}
+    <div class="welcome-section mb-4">
+        <h1 class="welcome-title">Accessibility Settings</h1>
+    </div>
+
+    <!-- Font Settings -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Font Settings</h2>
+            <p class="card-text">
+                Choose your preferred font type to enhance readability. The OpenDyslexic font is specifically designed to help readers with dyslexia, while Roboto offers a clean, modern look optimised for screen readability.
+            </p>
+
+            <form action="{{ url_for('update_settings') }}" method="POST">
+                <div class="mb-4">
+                    <label class="form-label">Font Type</label>
+                    <select name="font_choice" class="form-select">
+                        <option value="default" {% if session.font_choice == 'default' %}selected{% endif %}>Default Font</option>
+                        <option value="opendyslexic" {% if session.font_choice == 'opendyslexic' %}selected{% endif %}>OpenDyslexic</option>
+                        <option value="roboto" {% if session.font_choice == 'roboto' %}selected{% endif %}>Roboto</option>
+                    </select>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- About Fonts -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="card-title">About the Fonts</h3>
+            <p class="card-text">
+                <strong>OpenDyslexic</strong> is a typeface designed to mitigate some of the common reading errors caused by dyslexia. The letters have heavy weighted bottoms to indicate direction, unique letter shapes to prevent confusion, and consistent letter spacing to help improve readability.
+            </p>
+            <p class="card-text">
+                <strong>Roboto</strong> is a modern sans-serif typeface designed for digital readability. Its clean lines and geometric shapes make it ideal for screens and long-form reading.
+            </p>
+        </div>
+    </div>
+{% endblock %}

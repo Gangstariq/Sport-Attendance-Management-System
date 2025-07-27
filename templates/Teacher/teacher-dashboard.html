@@ -16,7 +16,7 @@
 <!-- Quick Stats Overview -->
 <div class="row mb-4">
     <div class="col-md-3 mb-3">
-        <div class="card text-center">
+        <div class="card text-center h-100">
             <div class="card-body">
                 <i class="fas fa-users fa-2x text-primary mb-2"></i>
                 <h4 class="card-title">{{ total_students }}</h4>
@@ -24,19 +24,19 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-3 mb-3">
-        <div class="card text-center">
+        <div class="card text-center h-100">
             <div class="card-body">
                 <i class="fas fa-percentage fa-2x text-success mb-2"></i>
-                <h4 class="card-title">{{ school_average }}</h4>
+                <h4 class="card-title">{{ school_average }}%</h4>
                 <p class="card-text">School Average</p>
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-3 mb-3">
-        <div class="card text-center">
+        <div class="card text-center h-100">
             <div class="card-body">
                 <i class="fas fa-futbol fa-2x text-info mb-2"></i>
                 <h4 class="card-title">{{ active_sports }}</h4>
@@ -44,91 +44,135 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-3 mb-3">
-        <div class="card text-center">
+        <div class="card text-center h-100">
             <div class="card-body">
                 <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
-                <h4 class="card-title">{{ below_threshold }}</h4>
-                <p class="card-text">Below 85%</p>
+                <h4 class="card-title">{{ below_threshold}}</h4>
+                <p class="card-text">Students Below 85%</p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Main Actions Menu -->
-<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h3><i class="fas fa-tools me-2"></i>Management Tools</h3>
+<!-- Main Management Tools -->
+<div class="row mb-4">
+    <!-- Data Management Section -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-database me-2"></i>Data Management
+                </h5>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <!-- Data Management -->
-                    <div class="col-md-6 mb-3">
-                        <h5><i class="fas fa-database me-2"></i>Data Management</h5>
-                        <div class="d-grid gap-2">
-                            <a href="/upload" class="btn btn-primary">
-                                <i class="fas fa-upload me-2"></i>Upload Attendance Data
-                            </a>
-                            <a href="/individual_student_attendance" class="btn btn-outline-primary">
-                                <i class="fas fa-search me-2"></i>Student Lookup
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <!-- Reports & Analytics -->
-                    <div class="col-md-6 mb-3">
-                        <h5><i class="fas fa-chart-bar me-2"></i>Reports & Analytics</h5>
-                        <div class="d-grid gap-2">
-                            <a href="/daily-attendance-dashboard" class="btn btn-success">
-                                <i class="fas fa-calendar-day me-2"></i>Year Group Analysis
-                            </a>
-                            <a href="/average-attendance-per-activity" class="btn btn-outline-success">
-                                <i class="fas fa-chart-line me-2"></i>Sport Statistics
-                            </a>
-                        </div>
-                    </div>
+                <p class="card-text text-muted">Upload data and search for students</p>
+
+                <div class="d-grid gap-3">
+                    <a href="/upload" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-upload me-2"></i>Upload Attendance Data
+                    </a>
+                    <a href="/individual_student_attendance" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-search me-2"></i>Individual Student Lookup
+                    </a>
                 </div>
-                
-                <!-- Advanced Analytics Row -->
-                <div class="row">
-                    <div class="col-12">
-                        <h5><i class="fas fa-analytics me-2"></i>Advanced Analytics</h5>
-                        <div class="row">
-                            <div class="col-md-4 mb-2">
-                                <a href="/sport-popularity" class="btn btn-info btn-sm w-100">
-                                    <i class="fas fa-trophy me-1"></i>Sport Popularity
-                                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reports Section -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>Main Reports
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text text-muted">View attendance trends and statistics</p>
+
+                <div class="d-grid gap-3">
+                    <a href="/daily-attendance-dashboard" class="btn btn-outline-success btn-lg">
+                        <i class="fas fa-calendar-day me-2"></i>Daily Year Group Analysis
+                    </a>
+                    <a href="/average-attendance-per-activity" class="btn btn-outline-success btn-lg">
+                        <i class="fas fa-chart-line me-2"></i>Attendance per Activity
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Advanced Analytics -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-analytics me-2"></i>Advanced Analytics
+                </h5>
+                <small class="opacity-75">Detailed Insights</small>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <a href="/sport-popularity" class="btn btn-outline-info w-100 py-3">
+                            <div class="d-flex flex-column align-items-center">
+                                <i class="fas fa-trophy fa-2x mb-2"></i>
+                                <span class="fw-bold">Sport Popularity</span>
+                                <small class="text-muted">Most popular activities</small>
                             </div>
-                            <div class="col-md-4 mb-2">
-                                <a href="/perfect-attendance" class="btn btn-info btn-sm w-100">
-                                    <i class="fas fa-award me-1"></i>Perfect Attendance
-                                </a>
+                        </a>
+                    </div>
+
+                    <div class="col-md-4">
+                        <a href="/perfect-attendance" class="btn btn-outline-info w-100 py-3">
+                            <div class="d-flex flex-column align-items-center">
+                                <i class="fas fa-award fa-2x mb-2"></i>
+                                <span class="fw-bold">Perfect Attendance</span>
+                                <small class="text-muted">100% attendance students</small>
                             </div>
-                            <div class="col-md-4 mb-2">
-                                <a href="/staff-workload" class="btn btn-info btn-sm w-100">
-                                    <i class="fas fa-user-clock me-1"></i>Staff Workload
-                                </a>
+                        </a>
+                    </div>
+
+                    <div class="col-md-4">
+                        <a href="/staff-workload" class="btn btn-outline-info w-100 py-3">
+                            <div class="d-flex flex-column align-items-center">
+                                <i class="fas fa-user-clock fa-2x mb-2"></i>
+                                <span class="fw-bold">Staff Workload</span>
+                                <small class="text-muted">Teacher session counts</small>
                             </div>
-                            <div class="col-md-6 mb-2">
-                                <a href="/low-attendance" class="btn btn-info btn-sm w-100">
-                                    <i class="fas fa-exclamation-circle me-1"></i>Low Attendance Students
-                                </a>
+                        </a>
+                    </div>
+
+                    <div class="col-md-6">
+                        <a href="/low-attendance" class="btn btn-outline-warning w-100 py-3">
+                            <div class="d-flex flex-column align-items-center">
+                                <i class="fas fa-exclamation-circle fa-2x mb-2"></i>
+                                <span class="fw-bold">Low Attendance Alert</span>
+                                <small class="text-muted">Students needing attention</small>
                             </div>
-                            <div class="col-md-6 mb-2">
-                                <a href="/time-slot-effectiveness" class="btn btn-info btn-sm w-100">
-                                    <i class="fas fa-clock me-1"></i>Time Slot Analysis
-                                </a>
+                        </a>
+                    </div>
+
+                    <div class="col-md-6">
+                        <a href="/attendance-streaks" class="btn btn-outline-secondary w-100 py-3">
+                            <div class="d-flex flex-column align-items-center">
+                                <i class="fas fa-fire fa-2x mb-2"></i>
+                                <span class="fw-bold">Attendance Streaks</span>
+                                <small class="text-muted">Consecutive attendance tracking</small>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
-
 </div>
+
+
+
+
 {% endblock %}

@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}{{ team_summary[0] }} Dashboard - SBHS Sports Attendance{% endblock %}
+
+{% block content %}
+
+<!-- Back Button and Page Header -->
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <!-- back button -->
+        <div class="mb-3">
+            <a href="/team-attendance" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Team Selection
+            </a>
+        </div>
+
+        <h1 class="mb-4">
+            <i class="fas fa-users me-2"></i>
+            {{ team_summary[0] }}  <!-- team_summary[0] is team_name -->
+        </h1>
+        <p class="lead">
+            {{ team_summary[1] }} - {{ team_summary[2] }} Semester {{ team_summary[3] }}
+            <!-- team_summary[1] is activity, [2] is year, [3] is semester -->
+        </p>
+    </div>
+</div>
+
+<!-- Team Overview Stats Cards -->
+<div class="row mb-4">
+
+    <!-- Total Players Card -->
+    <div class="col-md-3 mb-3">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                <h4 class="card-title">{{ team_summary[4] }}</h4>  <!-- team_summary[4] is total_players -->
+                <p class="card-text">Total Players</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Sessions Card -->
+    <div class="col-md-3 mb-3">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-calendar fa-2x text-info mb-2"></i>
+                <h4 class="card-title">{{ team_summary[5] }}</h4>  <!-- team_summary[5] is total_sessions -->
+                <p class="card-text">Total Sessions</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Attendance Percentage Card -->
+    <div class="col-md-3 mb-3">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-percentage fa-2x text-success mb-2"></i>
+                <h4 class="card-title">{{ team_summary[9] }}%</h4>  <!-- team_summary[9] is attendance_percentage -->
+                <p class="card-text">Team Attendance</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Present Sessions Card -->
+    <div class="col-md-3 mb-3">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                <h4 class="card-title">{{ team_summary[6] }}</h4>  <!-- team_summary[6] is present_count -->
+                <p class="card-text">Present Sessions</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Team Attendance Graph and Quick Stats -->
+<div class="row mb-4">
+
+    <!-- Left Side - Attendance Graph -->
+    <div class="col-md-8">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-bar me-2"></i>Team Attendance Overview</h5>
+            </div>
+            <div class="card-body">
+                {% if graph_html %}
+                    {{ graph_html|safe }}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No attendance data available</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats on the right side -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle me-2"></i>Quick Stats</h5>
+            </div>
+            <div class="card-body">
+
+                <!-- Present Sessions Stat -->
+                <div class="stat-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span><i class="fas fa-check text-success me-2"></i>Present:</span>
+                        <span class="badge bg-success">{{ team_summary[6] }}</span>  <!-- team_summary[6] is present_count -->
+                    </div>
+                </div>
+
+                <!-- Explained Absences Stat -->
+                <div class="stat-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span><i class="fas fa-exclamation-circle text-warning me-2"></i>Explained:</span>
+                        <span class="badge bg-warning text-dark">{{ team_summary[7] }}</span>  <!-- team_summary[7] is explained_count -->
+                    </div>
+                </div>
+
+                <!-- Unexplained Absences Stat -->
+                <div class="stat-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span><i class="fas fa-times text-danger me-2"></i>Unexplained:</span>
+                        <span class="badge bg-danger">{{ team_summary[8] }}</span>  <!-- team_summary[8] is unexplained_count -->
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- Overall Performance Badge -->
+                <div class="text-center">
+                    {% if team_summary[9] >= 85 %}
+                        <!-- If attendance is 85% or higher -->
+                        <span class="badge bg-success fs-6">Excellent Attendance (Above 85%)</span>
+                    {% else %}
+                        <!-- If attendance is below 85% -->
+                        <span class="badge bg-danger fs-6">Needs Improvement</span>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Individual Player Statistics Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-list me-2"></i>Individual Player Statistics</h5>
+            </div>
+            <div class="card-body">
+                {% if player_stats %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Name</th>
+                                    <th>Year Group</th>
+                                    <th>Total Sessions</th>
+                                    <th>Present</th>
+                                    <th>Explained Absence</th>
+                                    <th>Unexplained Absence</th>
+                                    <th>Attendance %</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                <!-- Loop through each player -->
+                                {% for player in player_stats %}
+                                    <tr>
+                                        <td>{{ player[0] }}</td>  <!-- player[0] is student_id -->
+                                        <td>
+                                            <strong>{{ player[1] }}</strong>  <!-- player[1] is full_name -->
+                                        </td>
+                                        <td>{{ player[2] }}</td>  <!-- player[2] is year_group -->
+                                        <td>{{ player[3] }}</td>  <!-- player[3] is total_sessions -->
+                                        <td><span class="badge bg-success">{{ player[4] }}</span></td>  <!-- player[4] is present_sessions -->
+                                        <td><span class="badge bg-warning text-dark">{{ player[5] }}</span></td>  <!-- player[5] is explained_absences -->
+                                        <td><span class="badge bg-danger">{{ player[6] }}</span></td>  <!-- player[6] is unexplained_absences -->
+                                        <td>
+                                            <strong>{{ player[7] }}%</strong>  <!-- player[7] is attendance_percentage -->
+                                        </td>
+                                        <td>
+                                            {% if player[7] >= 85 %}
+                                                <!-- If attendance is 85% or higher -->
+                                                <span class="status-present">On Track</span>
+                                            {% else %}
+                                                <!-- If attendance is below 85% -->
+                                                <span class="status-explained">Critical</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <!-- If no player data, show message -->
+                    <div class="text-center py-4">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No player data available for this team</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}

@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Team Attendance - SBHS Sports Attendance{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <h1 class="mb-4">
+            <i class="fas fa-users me-2"></i>
+            Team Attendance Management
+        </h1>
+        <p class="lead">Select filters to find and manage team attendance</p>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-filter me-2"></i>Team Filters
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row g-3">
+
+                        <!-- Year Dropdown -->
+                        <div class="col-md-3">
+                            <label for="year_filter" class="form-label">Year</label>
+                            <select class="form-select" id="year_filter" name="year_filter">
+                                <option value="">All Years</option>
+
+                                <!-- Going through each year -->
+                                {% for year in filter_options.years %}
+                                    <!-- Check if this year was selected by the user -->
+                                    {% if year|string == year_filter %}
+                                        <option value="{{ year }}" selected>{{ year }}</option>
+                                    {% else %}
+                                        <option value="{{ year }}">{{ year }}</option>
+                                    {% endif %}
+                                {% endfor %}
+
+                            </select>
+                        </div>
+
+                        <!-- Semester Dropdown -->
+                        <div class="col-md-3">
+                            <label for="semester_filter" class="form-label">Semester</label>
+                            <select class="form-select" id="semester_filter" name="semester_filter">
+                                <option value="">All Semesters</option>
+
+                                <!-- Loop through each semester -->
+                                {% for semester in filter_options.semesters %}
+                                    <!-- Check if this semester was selected by the user -->
+                                    {% if semester|string == semester_filter %}
+                                        <option value="{{ semester }}" selected>Semester {{ semester }}</option>
+                                    {% else %}
+                                        <option value="{{ semester }}">Semester {{ semester }}</option>
+                                    {% endif %}
+                                {% endfor %}
+
+                            </select>
+                        </div>
+
+                        <!-- Sport Dropdown -->
+                        <div class="col-md-4">
+                            <label for="activity_filter" class="form-label">Sport/Activity</label>
+                            <select class="form-select" id="activity_filter" name="activity_filter">
+                                <option value="">All Activities</option>
+
+                                <!-- Loop through each activity-->
+                                {% for activity in filter_options.activities %}
+                                    <!-- Check if this activity was selected by the user -->
+                                    {% if activity == activity_filter %}
+                                        <option value="{{ activity }}" selected>{{ activity }}</option>
+                                    {% else %}
+                                        <option value="{{ activity }}">{{ activity }}</option>
+                                    {% endif %}
+                                {% endfor %}
+
+                            </select>
+                        </div>
+
+                        <!-- Search Button -->
+                        <div class="col-md-2">
+                            <label class="form-label">Search</label>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search me-1"></i>Search Teams
+                            </button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Teams Results Section -->
+{% if teams %}
+    <!-- If teams found display them -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Available Teams ({{ teams|length }} found)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+
+                        <!-- Loop through each found team -->
+                        {% for team in teams %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card h-100 team-card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">
+                                            <i class="fas fa-trophy me-2 text-warning"></i>
+                                            {{ team[3] }}  <!-- team[3] is the team_name -->
+                                        </h6>
+                                        <p class="card-text">
+                                            <strong>Sport:</strong> {{ team[2] }}<br>  <!-- team[2] is activity -->
+                                            <strong>Year:</strong> {{ team[0] }} - Semester {{ team[1] }}<br>  <!-- team[0] is year, team[1] is semester -->
+                                            <strong>Players:</strong> {{ team[5] }} students  <!-- team[5] is student_count -->
+                                        </p>
+                                        <a href="/team-dashboard/{{ team[4] }}" class="btn btn-outline-primary w-100">
+                                            <!-- team[4] is team_id -->
+                                            <i class="fas fa-chart-bar me-1"></i>View Team Dashboard
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% elif request.method == 'POST' %}
+    <!-- If user searched but we found no teams -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No Teams Found</h4>
+                    <p class="text-muted">Try adjusting your filters to find teams.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% else %}
+    <!-- If user hasn't searched yet -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-filter fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">Select Filters</h4>
+                    <p class="text-muted">Use the filters above to find teams and view their attendance data.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+
+
+{% endblock %}

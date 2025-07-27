@@ -157,27 +157,6 @@ def get_teacher_dashboard_data():
     cursor.execute(below_threshold_query)
     below_threshold = cursor.fetchone()[0]
 
-    # Get last upload time (most recent session date as proxy)
-    last_activity_query = """
-        SELECT MAX(attendance_records.session_date) as last_activity
-        FROM attendance_records
-    """
-    cursor.execute(last_activity_query)
-    last_activity_result = cursor.fetchone()[0]
-
-    last_upload = 'No recent activity'
-    if last_activity_result:
-        try:
-            last_date = datetime.strptime(last_activity_result, '%Y-%m-%d %H:%M:%S')
-            days_ago = (datetime.now() - last_date).days
-            if days_ago == 0:
-                last_upload = 'Today'
-            elif days_ago == 1:
-                last_upload = 'Yesterday'
-            else:
-                last_upload = f'{days_ago} days ago'
-        except:
-            last_upload = 'Unknown'
 
     connection.close()
 
@@ -186,7 +165,6 @@ def get_teacher_dashboard_data():
         'school_average': school_average,
         'active_sports': active_sports,
         'below_threshold': below_threshold,
-        'last_upload': last_upload
     }
 
 
@@ -428,33 +406,27 @@ def low_attendance_students(year_filter, attendance_threshold=85):
     return results
 
 
-def time_slot_effectiveness(year_filter):
+def attendance_streak_tracker(year_filter):
+#finds the streaks of all students
+
+    # gets all student attendance information
     query = """
         SELECT 
-            attendance_records.start_time,
-            attendance_records.end_time,
-            teams.activity,
-            COUNT(*) AS total_sessions,
-            COUNT(DISTINCT students.student_id) AS unique_students,
-            SUM(CASE WHEN attendance_records.attendance_status = 'Present' THEN 1 ELSE 0 END) AS present_count,
-            ROUND(
-                (SUM(CASE WHEN attendance_records.attendance_status = 'Present' THEN 1 ELSE 0 END) * 100.0) / 
-                COUNT(*)
-            , 1) AS attendance_rate,
-            COUNT(DISTINCT attendance_records.staff) AS staff_count,
-            teams.year,
-            teams.semester
+            students.student_id,
+            students.full_name,
+            students.year_group,
+            attendance_records.session_date,
+            attendance_records.attendance_status
         FROM 
-            attendance_records
+            students
         JOIN 
-            enrollments ON attendance_records.enrollment_id = enrollments.enrollment_id
-        JOIN 
-            students ON enrollments.student_id = students.student_id
+            enrollments ON students.student_id = enrollments.student_id
         JOIN 
             teams ON enrollments.team_id = teams.team_id
+        JOIN 
+            attendance_records ON enrollments.enrollment_id = attendance_records.enrollment_id
         WHERE 
-            attendance_records.start_time IS NOT NULL 
-            AND attendance_records.end_time IS NOT NULL
+            (attendance_records.is_cancelled IS NULL OR attendance_records.is_cancelled != 'Yes')
     """
 
     params = []
@@ -463,10 +435,215 @@ def time_slot_effectiveness(year_filter):
         params.append(year_filter)
 
     query += """
-        GROUP BY 
-            attendance_records.start_time, attendance_records.end_time, teams.activity, teams.year, teams.semester
         ORDER BY 
-            attendance_records.start_time, attendance_rate DESC
+            students.student_id, attendance_records.session_date
+    """
+
+    connection = sqlite3.connect(DB_PATH)
+    cursor = connection.cursor()
+    cursor.execute(query, params)
+    all_records = cursor.fetchall()
+    connection.close()
+
+    # create empty lists for student data to be found
+    student_streaks = []
+    current_student = None
+    student_dates = []
+
+    #looping thru sql query and setting all the variables up
+    for record in all_records:
+        student_id = record[0]
+        student_name = record[1]
+        year_group = record[2]
+        session_date = record[3]
+        attendance_status = record[4]
+
+
+        if current_student != student_id:
+            if current_student is not None:
+                # Calculate streaks for the previous student
+                streak_info = calculate_student_streaks(current_student, current_name, current_year, student_dates)
+                if streak_info:
+                    student_streaks.append(streak_info)
+
+
+            current_student = student_id
+            current_name = student_name
+            current_year = year_group
+            student_dates = []
+
+
+        student_dates.append({
+            'date': session_date,
+            'status': attendance_status
+        })
+
+    # checking last student
+    if current_student is not None:
+        streak_info = calculate_student_streaks(current_student, current_name, current_year, student_dates)
+        if streak_info:
+            student_streaks.append(streak_info)
+
+    return student_streaks
+
+
+def calculate_student_streaks(student_id, student_name, year_group, student_dates):
+#calcultes the current steak a student has and their longest streak
+    if not student_dates:
+        return None
+
+    unique_dates = [] #stores each date + and if student was present or not
+    date_statuses = {} #storing multiple attended sessions in a signle date to check at least one was present
+
+    #go through every session attended by studetn
+    for session in student_dates:
+        date = session['date'][:10]
+        status = session['status']
+
+        # For each date, store all attendance statuses
+        if date not in date_statuses:
+            date_statuses[date] = [] # makee a new list for this date
+        date_statuses[date].append(status)
+
+    #go through the list of all dates and check if present for at least one of the sessions
+    for date in date_statuses:
+        statuses_for_day = date_statuses[date]
+        is_present_today = False
+
+        for status in statuses_for_day:
+            if status == "Present":
+                is_present_today = True
+                break
+        #after checking if present at least one it adds to unique_dates a dictionary
+        unique_dates.append({
+            'date': date,
+            'present': is_present_today
+        })
+
+    # sort dates in order
+    unique_dates.sort(key=lambda x: x['date'])
+
+    # find the current streak by starting from most recent date (last one) to the earliers date
+    current_streak = 0
+
+
+    for i in range(len(unique_dates) - 1, -1, -1):
+        if unique_dates[i]['present']:
+            current_streak += 1
+        else:
+            break
+
+    # find longest streak
+    longest_streak = 0
+    temp_streak = 0
+
+    for date_info in unique_dates:
+        if date_info['present']:
+            temp_streak += 1
+            if temp_streak > longest_streak:
+                longest_streak = temp_streak
+        else:
+            temp_streak = 0
+
+
+    return {
+        'student_id': student_id,
+        'student_name': student_name,
+        'year_group': year_group,
+        'current_streak': current_streak,
+        'longest_streak': longest_streak,
+        'total_days': len(unique_dates)
+    }
+
+
+def get_single_student_attendance(student_id):
+    # gets all student attendance information
+    query = """
+        SELECT 
+            students.full_name,
+            students.year_group,
+            attendance_records.session_date,
+            attendance_records.attendance_status
+        FROM 
+            students
+        JOIN 
+            enrollments ON students.student_id = enrollments.student_id
+        JOIN 
+            teams ON enrollments.team_id = teams.team_id
+        JOIN 
+            attendance_records ON enrollments.enrollment_id = attendance_records.enrollment_id
+        WHERE 
+            students.student_id = ? AND
+            (attendance_records.is_cancelled IS NULL OR attendance_records.is_cancelled != 'Yes')
+        ORDER BY 
+            attendance_records.session_date
+    """
+
+    connection = sqlite3.connect(DB_PATH)
+    cursor = connection.cursor()
+    cursor.execute(query, (student_id,))
+    results = cursor.fetchall()
+    connection.close()
+
+    if not results:
+        return None
+
+    first_row = results[0]
+    student_name = first_row[0]
+    year_group = first_row[1]
+
+
+
+    student_dates = []
+    for row in results:
+        session_date = row[2]
+        attendance_status = row[3]
+        student_dates.append({
+            'date': session_date,
+            'status': attendance_status
+        })
+
+    streak_data = calculate_student_streaks(student_id, student_name, year_group, student_dates)
+
+    return streak_data
+
+
+def get_available_teams(year_filter=None, semester_filter=None, activity_filter=None):
+    """Get list of available teams based on filters"""
+    query = """
+        SELECT DISTINCT 
+            teams.year,
+            teams.semester, 
+            teams.activity,
+            teams.team_name,
+            teams.team_id,
+            COUNT(DISTINCT enrollments.student_id) as student_count
+        FROM 
+            teams
+        LEFT JOIN 
+            enrollments ON teams.team_id = enrollments.team_id
+        WHERE 1=1
+    """
+
+    params = []
+
+    if year_filter:
+        query += " AND teams.year = ?"
+        params.append(year_filter)
+
+    if semester_filter:
+        query += " AND teams.semester = ?"
+        params.append(semester_filter)
+
+    if activity_filter:
+        query += " AND teams.activity = ?"
+        params.append(activity_filter)
+
+    query += """
+        GROUP BY 
+            teams.team_id, teams.year, teams.semester, teams.activity, teams.team_name
+        ORDER BY 
+            teams.year DESC, teams.semester, teams.activity, teams.team_name
     """
 
     connection = sqlite3.connect(DB_PATH)
@@ -475,3 +652,146 @@ def time_slot_effectiveness(year_filter):
     results = cursor.fetchall()
     connection.close()
     return results
+
+
+def get_team_attendance_data(team_id):
+    """Get detailed attendance data for a specific team"""
+    query = """
+        SELECT 
+            students.student_id,
+            students.full_name,
+            students.year_group,
+            teams.team_name,
+            teams.activity,
+            teams.year,
+            teams.semester,
+            attendance_records.session_date,
+            attendance_records.attendance_status,
+            attendance_records.session_name
+        FROM 
+            students
+        JOIN 
+            enrollments ON students.student_id = enrollments.student_id
+        JOIN 
+            teams ON enrollments.team_id = teams.team_id
+        JOIN 
+            attendance_records ON enrollments.enrollment_id = attendance_records.enrollment_id
+        WHERE 
+            teams.team_id = ? AND
+            (attendance_records.is_cancelled IS NULL OR attendance_records.is_cancelled != 'Yes')
+        ORDER BY 
+            students.full_name, attendance_records.session_date
+    """
+
+    connection = sqlite3.connect(DB_PATH)
+    cursor = connection.cursor()
+    cursor.execute(query, (team_id,))
+    results = cursor.fetchall()
+    connection.close()
+    return results
+
+
+def get_team_summary_stats(team_id):
+    """Get summary statistics for a team"""
+    query = """
+        SELECT 
+            teams.team_name,
+            teams.activity,
+            teams.year,
+            teams.semester,
+            COUNT(DISTINCT students.student_id) as total_players,
+            COUNT(attendance_records.attendance_status) as total_sessions,
+            SUM(CASE WHEN attendance_records.attendance_status = 'Present' THEN 1 ELSE 0 END) as present_count,
+            SUM(CASE WHEN attendance_records.attendance_status = 'Explained absence' THEN 1 ELSE 0 END) as explained_count,
+            SUM(CASE WHEN attendance_records.attendance_status = 'Unexplained absence' THEN 1 ELSE 0 END) as unexplained_count,
+            ROUND(
+                (SUM(CASE WHEN attendance_records.attendance_status = 'Present' THEN 1 ELSE 0 END) * 100.0) / 
+                COUNT(attendance_records.attendance_status)
+            , 1) AS team_attendance_rate
+        FROM 
+            teams
+        JOIN 
+            enrollments ON teams.team_id = enrollments.team_id
+        JOIN 
+            students ON enrollments.student_id = students.student_id
+        JOIN 
+            attendance_records ON enrollments.enrollment_id = attendance_records.enrollment_id
+        WHERE 
+            teams.team_id = ? AND
+            (attendance_records.is_cancelled IS NULL OR attendance_records.is_cancelled != 'Yes')
+        GROUP BY 
+            teams.team_id
+    """
+
+    connection = sqlite3.connect(DB_PATH)
+    cursor = connection.cursor()
+    cursor.execute(query, (team_id,))
+    result = cursor.fetchone()
+    connection.close()
+    return result
+
+
+def get_team_player_stats(team_id):
+    """Get individual player statistics for a team"""
+    query = """
+        SELECT 
+            students.student_id,
+            students.full_name,
+            students.year_group,
+            COUNT(attendance_records.attendance_status) as total_sessions,
+            SUM(CASE WHEN attendance_records.attendance_status = 'Present' THEN 1 ELSE 0 END) as present_sessions,
+            SUM(CASE WHEN attendance_records.attendance_status = 'Explained absence' THEN 1 ELSE 0 END) as explained_absences,
+            SUM(CASE WHEN attendance_records.attendance_status = 'Unexplained absence' THEN 1 ELSE 0 END) as unexplained_absences,
+            ROUND(
+                (SUM(CASE WHEN attendance_records.attendance_status = 'Present' THEN 1 ELSE 0 END) * 100.0) / 
+                COUNT(attendance_records.attendance_status)
+            , 1) AS attendance_percentage
+        FROM 
+            students
+        JOIN 
+            enrollments ON students.student_id = enrollments.student_id
+        JOIN 
+            teams ON enrollments.team_id = teams.team_id
+        JOIN 
+            attendance_records ON enrollments.enrollment_id = attendance_records.enrollment_id
+        WHERE 
+            teams.team_id = ? AND
+            (attendance_records.is_cancelled IS NULL OR attendance_records.is_cancelled != 'Yes')
+        GROUP BY 
+            students.student_id, students.full_name, students.year_group
+        ORDER BY 
+            attendance_percentage DESC, students.full_name
+    """
+
+    connection = sqlite3.connect(DB_PATH)
+    cursor = connection.cursor()
+    cursor.execute(query, (team_id,))
+    results = cursor.fetchall()
+    connection.close()
+    return results
+
+
+def get_unique_filter_options():
+    """Get unique years, semesters, and activities for filter dropdowns"""
+    connection = sqlite3.connect(DB_PATH)
+    cursor = connection.cursor()
+
+    # Get unique years
+    cursor.execute("SELECT DISTINCT year FROM teams ORDER BY year DESC")
+    years = [row[0] for row in cursor.fetchall()]
+
+    # Get unique semesters
+    cursor.execute("SELECT DISTINCT semester FROM teams ORDER BY semester")
+    semesters = [row[0] for row in cursor.fetchall()]
+
+    # Get unique activities
+    cursor.execute("SELECT DISTINCT activity FROM teams ORDER BY activity")
+    activities = [row[0] for row in cursor.fetchall()]
+
+    connection.close()
+
+    return {
+        'years': years,
+        'semesters': semesters,
+        'activities': activities
+    }
