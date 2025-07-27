@@ -20,28 +20,84 @@
             <div class="search-card">
                 <h5>Filter by Year</h5>
                 <form method="POST" action="/perfect-attendance">
-                    <input type="text" class="form-control mb-2" name="year_ID" 
-                           placeholder="Enter Year (2024)" value="{{ year_ID }}">
+
+                    <!-- Year Dropdown -->
+                    <select class="form-select mb-2" name="year_ID">
+                        <option value="All Years" {% if not year_ID %}selected{% endif %}>All Years</option>
+
+                        <!-- Loop through each available year -->
+                        {% for year in available_years %}
+                            <!-- Check if this year was selected by the user -->
+                            {% if year|string == year_ID %}
+                                <option value="{{ year }}" selected>{{ year }}</option>
+                            {% else %}
+                                <option value="{{ year }}">{{ year }}</option>
+                            {% endif %}
+                        {% endfor %}
+
+                    </select>
+
                     <button type="submit" class="btn btn-primary">
-                        Search
+                        <i class="fas fa-search me-1"></i>Search Perfect Attendance
                     </button>
-                    <br><small>Leave empty to show all years</small>
+                    <br><small class="text-muted">Select a specific year or "All Years" to show everyone</small>
                 </form>
             </div>
         </div>
-        
+
         <div class="col-md-6">
             <div class="search-card">
                 <h5>Summary</h5>
                 {% if results %}
                     <p><strong>{{ results|length }}</strong> students with perfect attendance</p>
-                    <p>Showing results {% if year_ID %}for year {{ year_ID }}{% else %}for all years{% endif %}</p>
+                    <p>Showing results
+                        {% if year_ID %}
+                            for year {{ year_ID }}
+                        {% else %}
+                            for all years
+                        {% endif %}
+                    </p>
                 {% else %}
-                    <p>Search to see perfect attendance students</p>
+                    <p>Select a year above to see perfect attendance students</p>
                 {% endif %}
             </div>
         </div>
     </div>
+
+    <!-- Stats Cards -->
+    {% if results %}
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-trophy fa-2x text-warning mb-2"></i>
+                    <h4 class="card-title">{{ results|length }}</h4>
+                    <p class="card-text">Perfect Attendance Records</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-users fa-2x text-success mb-2"></i>
+                    <h4 class="card-title">{{ unique_students }}</h4>
+                    <p class="card-text">Unique Students</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-futbol fa-2x text-primary mb-2"></i>
+                    <h4 class="card-title">{{ unique_sports }}</h4>
+                    <p class="card-text">Different Sports</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Results Table -->
     {% if results %}
@@ -49,16 +105,19 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3>Perfect Attendance Students
+                    <h3>
+                        <i class="fas fa-award me-2"></i>Perfect Attendance Students
                         {% if year_ID %}
                             - Year {{ year_ID }}
+                        {% else %}
+                            - All Years
                         {% endif %}
                     </h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
                         <table class="table table-striped">
-                            <thead class="table-dark">
+                            <thead class="table-dark sticky-top">
                                 <tr>
                                     <th>Student ID</th>
                                     <th>Student Name</th>
@@ -72,78 +131,55 @@
                             <tbody>
                                 {% for result in results %}
                                 <tr>
-                                    <td>{{ result[0] }}</td>
-                                    <td><strong>{{ result[1] }}</strong></td>
-                                    <td><span class="badge bg-info">{{ result[2] }}</span></td>
-                                    <td><strong>{{ result[3] }}</strong></td>
-                                    <td>{{ result[4] }}</td>
-                                    <td>{{ result[5] }}</td>
+                                    <td>{{ result[0] }}</td>  <!-- result[0] is student_id -->
+                                    <td><strong>{{ result[1] }}</strong></td>  <!-- result[1] is student_name -->
                                     <td>
-                                        <span class="status-present">{{ result[6] }}% ⭐</span>
+                                        <span class="badge bg-info">{{ result[2] }}</span>  <!-- result[2] is year_group -->
+                                    </td>
+                                    <td><strong>{{ result[3] }}</strong></td>  <!-- result[3] is activity -->
+                                    <td>
+                                        <span class="badge bg-secondary">{{ result[4] }}</span>  <!-- result[4] is total_sessions -->
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">{{ result[5] }}</span>  <!-- result[5] is present_sessions -->
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-star me-1"></i>{{ result[6] }}% Perfect!
+                                        </span>  <!-- result[6] is attendance_percentage (always 100%) -->
                                     </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
-                    
-                    <div class="mt-3">
-                        <small class="text-muted">
-                            <strong>Note:</strong> Only students with 100% attendance are shown. 
-                            This includes students who attended every session in their enrolled sport/activity.
-                        </small>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
-    {% endif %}
 
-    <!-- Stats Cards -->
-    {% if results %}
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card text-center">
-                <div class="card-body">
-                    <i class="fas fa-trophy fa-2x text-warning mb-2"></i>
-                    <h4 class="card-title">{{ results|length }}</h4>
-                    <p class="card-text">Perfect Attendance Students</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card text-center">
-                <div class="card-body">
-                    <i class="fas fa-users fa-2x text-success mb-2"></i>
-                    <h4 class="card-title">{{ unique_students }}</h4>
-                    <p class="card-text">Unique Students</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card text-center">
-                <div class="card-body">
-                    <i class="fas fa-futbol fa-2x text-primary mb-2"></i>
-                    <h4 class="card-title">{{ unique_sports }}</h4>
-                    <p class="card-text">Different Sports</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- No Results Message -->
-    {% if not results and request.method == 'POST' %}
+    {% elif request.method == 'POST' %}
+    <!-- No results message -->
     <div class="alert alert-warning">
-        <strong>No perfect attendance students found!</strong> 
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>No perfect attendance students found!</strong>
         {% if year_ID %}
-            Try using a different year or remove the year filter.
+            Try selecting "All Years" or using a different year.
         {% else %}
             No students have 100% attendance in the database.
         {% endif %}
     </div>
+
+    {% else %}
+    <!-- Initial message when page loads -->
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-star fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">Select a Year</h4>
+            <p class="text-muted">Choose a year above to view students with perfect attendance records.</p>
+        </div>
+    </div>
     {% endif %}
+
 </div>
 {% endblock %}

@@ -25,15 +25,29 @@
                     <div class="row">
                         <div class="col-md-8">
                             <div class="mb-3">
-                                <label for="year_filter" class="form-label">Filter by Year (Optional)</label>
-                                <input type="text" class="form-control" id="year_filter" name="year_filter"
-                                       placeholder="e.g., 2024" value="{{year_filter}}">
-                                <small class="form-text text-muted">Leave empty to show all years</small>
+                                <label for="year_filter" class="form-label">Select Year</label>
+
+                                <!-- Year Dropdown -->
+                                <select class="form-select" id="year_filter" name="year_filter">
+                                    <option value="All Years" {% if not year_filter %}selected{% endif %}>All Years</option>
+
+                                    <!-- Loop through each available year -->
+                                    {% for year in available_years %}
+                                        <!-- Check if this year was selected by the user -->
+                                        {% if year|string == year_filter %}
+                                            <option value="{{ year }}" selected>{{ year }}</option>
+                                        {% else %}
+                                            <option value="{{ year }}">{{ year }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                </select>
+                                <small class="form-text text-muted">Select a specific year or "All Years" to show everything</small>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label">&nbsp;</label>
+                                <label class="form-label">Search</label>
                                 <button type="submit" class="btn btn-primary w-100">
                                     <i class="fas fa-search me-1"></i>Filter Results
                                 </button>
@@ -48,22 +62,39 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-header">
-                <h5><i class="fas fa-chart-bar me-2"></i>Generate Graph</h5>
+                <h5><i class="fas fa-info-circle me-2"></i>About This Report</h5>
             </div>
             <div class="card-body">
-                <form method="POST" action="/sport-popularity-graph">
-                    <input type="hidden" name="year_filter" value="{{ year_filter }}">
-                    <button type="submit" class="btn btn-success w-100">
-                        <i class="fas fa-chart-line me-1"></i>Show Popularity Graph
-                    </button>
-                    <small class="form-text text-muted mt-2">
-                        Generate a graph
-                    </small>
-                </form>
+                <p class="mb-2"><strong>Enrollment:</strong> Number of students registered for each sport</p>
+                <p class="mb-2"><strong>Attendance Rate:</strong> Percentage of sessions attended</p>
+                <p class="mb-0"><strong>Sorting:</strong> Sports are ordered by popularity (highest enrollment first)</p>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Graph Section -->
+{% if graph_html %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3>
+                    <i class="fas fa-chart-bar me-2"></i>Sport Popularity Visualisation
+                    {% if year_filter %}
+                        - {{ year_filter }}
+                    {% else %}
+                        - All Years
+                    {% endif %}
+                </h3>
+            </div>
+            <div class="card-body">
+                {{ graph_html|safe }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 <!-- Results Section -->
 {% if results %}
@@ -86,7 +117,7 @@
                                 <th>Sport/Activity</th>
                                 <th>Total Enrolled</th>
                                 <th>Total Sessions</th>
-                                <th>Attendend Sessions</th>
+                                <th>Attended Sessions</th>
                                 <th>Attendance Rate (%)</th>
                                 <th>Year</th>
                                 <th>Semester</th>
@@ -115,22 +146,6 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
-
-<!-- Graph Section -->
-{% if graph_html %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h3><i class="fas fa-chart-bar me-2"></i>Sport Popularity Visualisation</h3>
-            </div>
-            <div class="card-body">
-                {{ graph_html|safe }}
             </div>
         </div>
     </div>
@@ -180,10 +195,23 @@
             <i class="fas fa-exclamation-triangle me-2"></i>
             <strong>No results found!</strong>
             {% if year_filter %}
-                Try removing the year filter or using a different year.
+                Try selecting "All Years" or using a different year.
             {% else %}
                 There might be no sport data in the database.
             {% endif %}
+        </div>
+    </div>
+</div>
+{% elif not results %}
+<!-- Initial message when page loads -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-trophy fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">Select Filter Options</h4>
+                <p class="text-muted">Choose a year above to view sport popularity data and generate visualisations.</p>
+            </div>
         </div>
     </div>
 </div>

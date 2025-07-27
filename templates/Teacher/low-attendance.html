@@ -21,9 +21,23 @@
                 <h5>Filter Options</h5>
                 <form method="POST" action="/low-attendance">
                     <div class="mb-2">
-                        <label>Year (Optional):</label>
-                        <input type="text" class="form-control mb-2" name="year_filter"
-                               placeholder="Enter Year (2024)" value="{{ year_filter }}">
+                        <label>Select Year:</label>
+
+                        <!-- Year Dropdown -->
+                        <select class="form-select mb-2" name="year_filter">
+                            <option value="All Years" {% if not year_filter %}selected{% endif %}>All Years</option>
+
+                            <!-- Loop through each available year -->
+                            {% for year in available_years %}
+                                <!-- Check if this year was selected by the user -->
+                                {% if year|string == year_filter %}
+                                    <option value="{{ year }}" selected>{{ year }}</option>
+                                {% else %}
+                                    <option value="{{ year }}">{{ year }}</option>
+                                {% endif %}
+                            {% endfor %}
+
+                        </select>
                     </div>
                     <div class="mb-2">
                         <label>Attendance Threshold (%):</label>
@@ -31,9 +45,9 @@
                                placeholder="85" value="{{ attendance_threshold }}" min="1" max="100">
                     </div>
                     <button type="submit" class="btn btn-primary">
-                        Find Students
+                        <i class="fas fa-search me-1"></i>Find Students
                     </button>
-                    <br><small>Shows students with attendance ≤ threshold %</small>
+                    <br><small class="text-muted">Shows students with attendance ≤ threshold %</small>
                 </form>
             </div>
         </div>
@@ -46,7 +60,7 @@
                     <input type="text" class="form-control mb-2" id="searchInput"
                            placeholder="Type student name...">
                 </div>
-                <small>Search updates automatically as you type</small>
+                <small class="text-muted">Search updates automatically as you type</small>
                 <div id="notFound" style="display: none;" class="alert alert-warning mt-2">
                     No students found matching your search.
                 </div>
@@ -155,17 +169,27 @@
             </div>
         </div>
     </div>
-    {% endif %}
 
-    <!-- No Results Message -->
-    {% if not results and request.method == 'POST' %}
+    {% elif request.method == 'POST' %}
+    <!-- No results message -->
     <div class="alert alert-success">
+        <i class="fas fa-check-circle me-2"></i>
         <strong>Excellent!</strong>
         {% if year_filter %}
             All students in {{ year_filter }} have attendance rates above {{ attendance_threshold }}%.
         {% else %}
             All students have attendance rates above {{ attendance_threshold }}%.
         {% endif %}
+    </div>
+
+    {% else %}
+    <!-- Initial message when page loads -->
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">Set Filter Criteria</h4>
+            <p class="text-muted">Choose a year and attendance threshold above to find students who may need support.</p>
+        </div>
     </div>
     {% endif %}
 
@@ -181,9 +205,8 @@ document.getElementById('searchInput').addEventListener('keyup', function() {
     searchTable();
 });
 
-// CHANGED: Renamed from searchStudent() to searchTable() to match your example
+
 function searchTable() {
-    // CHANGED: Updated variable names to match your example code exactly
     const input = document.getElementById('searchInput');
     const filter = input.value.toUpperCase();
     const table = document.getElementById('searchableTable');

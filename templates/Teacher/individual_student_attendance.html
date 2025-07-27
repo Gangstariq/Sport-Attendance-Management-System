@@ -30,7 +30,7 @@
     <div class="col-lg-12">
         <div class="alert alert-info">
             <i class="fas fa-info-circle me-2"></i>
-            <strong>Viewing attendance for: {{ student_name }} (ID: {{ search_ID }})</strong>
+            <strong>Viewing attendance for: ID: {{ search_ID }}</strong>
             <span class="float-end">
                 <small>Total Records: {{ results|length }} |
                 Date Range: {{ date_range_start }} to {{ date_range_end }}</small>
@@ -93,59 +93,134 @@
     </div>
 </div>
 
-<!-- Filters (Server-side using forms) -->
+<!-- Filter Section -->
 <div class="row mb-3">
+
+    <!-- Left Side - Filter Controls -->
     <div class="col-md-8">
         <div class="card">
             <div class="card-body">
-                <h6><i class="fas fa-filter me-2"></i>Filter Records</h6>
+                <h6>
+                    <i class="fas fa-filter me-2"></i>Filter This Student's Records
+                </h6>
+
+                <!-- Filter Form -->
                 <form method="POST" action="/individual_student_attendance" class="row">
+
                     <input type="hidden" name="search_ID" value="{{ search_ID }}">
+
+                    <!-- Activity/Sport Filter Dropdown -->
                     <div class="col-md-4">
+                        <label class="form-label small">Filter by Activity:</label>
                         <select class="form-select form-select-sm" name="activity_filter">
-                            <option value="">All Activities</option>
+                            <option value="">Show All Activities</option>
+
+                            <!-- Loop through each activity this student participates in -->
                             {% for activity in unique_activities %}
-                                <option value="{{ activity }}" {% if activity_filter == activity %}selected{% endif %}>{{ activity }}</option>
+                                <!-- Check if this activity was selected by user -->
+                                {% if activity_filter == activity %}
+                                    <option value="{{ activity }}" selected>{{ activity }}</option>
+                                {% else %}
+                                    <option value="{{ activity }}">{{ activity }}</option>
+                                {% endif %}
                             {% endfor %}
+
                         </select>
                     </div>
+
+                    <!-- Attendance Status Filter Dropdown -->
                     <div class="col-md-4">
+                        <label class="form-label small">Filter by Status:</label>
                         <select class="form-select form-select-sm" name="status_filter">
-                            <option value="">All Statuses</option>
-                            <option value="Present" {% if status_filter == "Present" %}selected{% endif %}>Present</option>
-                            <option value="Explained absence" {% if status_filter == "Explained absence" %}selected{% endif %}>Explained Absence</option>
-                            <option value="Unexplained absence" {% if status_filter == "Unexplained absence" %}selected{% endif %}>Unexplained Absence</option>
+                            <option value="">Show All Statuses</option>
+
+                            <!-- Present Option -->
+                            {% if status_filter == "Present" %}
+                                <option value="Present" selected>Present</option>
+                            {% else %}
+                                <option value="Present">Present</option>
+                            {% endif %}
+
+                            <!-- Explained Absence Option -->
+                            {% if status_filter == "Explained absence" %}
+                                <option value="Explained absence" selected>Explained Absence</option>
+                            {% else %}
+                                <option value="Explained absence">Explained Absence</option>
+                            {% endif %}
+
+                            <!-- Unexplained Absence Option -->
+                            {% if status_filter == "Unexplained absence" %}
+                                <option value="Unexplained absence" selected>Unexplained Absence</option>
+                            {% else %}
+                                <option value="Unexplained absence">Unexplained Absence</option>
+                            {% endif %}
+
                         </select>
                     </div>
+
+                    <!-- Submit Button -->
                     <div class="col-md-4">
-                        <button type="submit" class="btn btn-sm btn-primary w-100">Apply Filters</button>
+                        <label class="form-label small">Apply Changes:</label>
+                        <button type="submit" class="btn btn-sm btn-primary w-100">
+                            <i class="fas fa-search me-1"></i>Apply Filters
+                        </button>
                     </div>
+
                 </form>
+
+                <!-- Help Text -->
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Select filters above and click "Apply Filters" to narrow down the results.
+                        Leave dropdowns as "Show All" to see everything.
+                    </small>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Right Side - View Options -->
     <div class="col-md-4">
         <div class="card">
             <div class="card-body">
-                <h6><i class="fas fa-eye me-2"></i>View Options</h6>
+                <h6>
+                    <i class="fas fa-eye me-2"></i>View Options
+                </h6>
+
                 <div class="row">
+                    <!-- Hide/Show Table Button -->
                     <div class="col-md-6">
+                        <label class="form-label small">Toggle Table:</label>
                         <button class="btn btn-sm btn-outline-secondary w-100" onclick="toggleTable()">
-                            <i class="fas fa-eye-slash me-1"></i><span id="toggleText">Hide</span> Details
+                            <i class="fas fa-eye-slash me-1"></i>
+                            <span id="toggleText">Hide</span> Details
                         </button>
                     </div>
+
+                    <!-- Export to CSV Button -->
                     <div class="col-md-6">
+                        <label class="form-label small">Export Data:</label>
                         <button id="btnExportToCsv" type="button" class="btn btn-sm btn-outline-info w-100">
                             <i class="fas fa-download me-1"></i>Export CSV
                         </button>
                     </div>
                 </div>
+
+                <!-- Help Text -->
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Use these buttons to hide the table or download the data as a CSV file.
+                    </small>
+                </div>
             </div>
         </div>
     </div>
+
 </div>
 
-<!-- Detailed Records Table -->
+<!--  Records Table -->
 <div class="row" id="detailsTable">
     <div class="col-lg-12">
         <div class="card">

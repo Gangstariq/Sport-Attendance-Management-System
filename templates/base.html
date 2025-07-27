@@ -39,51 +39,54 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                <!-- navigation features -->
-                <ul class="navbar-nav me-auto">
-                    {% if user_type == 'teacher' %}
-                        <!-- if user is teacher have all the features -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="teacherDropdown" role="button"
-                               data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-chalkboard-teacher me-1"></i>Teacher Tools
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="/teacher-dashboard">
-                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                                </a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><h6 class="dropdown-header">Attendance Reports</h6></li>
-                                <li><a class="dropdown-item" href="/daily-attendance-dashboard">
-                                    <i class="fas fa-chart-line me-2"></i>Daily Attendance
-                                </a></li>
-                                <li><a class="dropdown-item" href="/average-attendance-per-activity">
-                                    <i class="fas fa-chart-bar me-2"></i>Activity Attendance
-                                </a></li>
-                                <li><a class="dropdown-item" href="/individual_student_attendance">
-                                    <i class="fas fa-user me-2"></i>Individual Student
-                                </a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><h6 class="dropdown-header">Analysis Tools</h6></li>
-                                <li><a class="dropdown-item" href="/sport-popularity">
-                                    <i class="fas fa-trophy me-2"></i>Sport Popularity
-                                </a></li>
-                                <li><a class="dropdown-item" href="/perfect-attendance">
-                                    <i class="fas fa-star me-2"></i>Perfect Attendance
-                                </a></li>
-                                <li><a class="dropdown-item" href="/low-attendance">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>Low Attendance
-                                </a></li>
-                                <li><a class="dropdown-item" href="/staff-workload">
-                                    <i class="fas fa-users-cog me-2"></i>Staff Workload
-                                </a></li>
-                                <li><a class="dropdown-item" href="/attendance-streaks">
-                                    <i class="fas fa-solid fa-fire me-2"></i>Attendance Streaks
-                                </a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="/upload">
-                                    <i class="fas fa-upload me-2"></i>Upload Data
-                                </a></li>
+        <!-- navigation features -->
+        <ul class="navbar-nav me-auto">
+            {% if user_type == 'teacher' %}
+                <!-- if user is teacher have all the features -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="teacherDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-chalkboard-teacher me-1"></i>Teacher Tools
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/teacher-dashboard">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">Attendance Reports</h6></li>
+                        <li><a class="dropdown-item" href="/daily-attendance-dashboard">
+                            <i class="fas fa-chart-line me-2"></i>Daily Attendance
+                        </a></li>
+                        <li><a class="dropdown-item" href="/average-attendance-per-activity">
+                            <i class="fas fa-chart-bar me-2"></i>Activity Attendance
+                        </a></li>
+                        <li><a class="dropdown-item" href="/individual_student_attendance">
+                            <i class="fas fa-user me-2"></i>Individual Student
+                        </a></li>
+                        <li><a class="dropdown-item" href="/team-attendance">
+                            <i class="fas fa-users me-2"></i>Team Attendance
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header">Analysis Tools</h6></li>
+                        <li><a class="dropdown-item" href="/sport-popularity">
+                            <i class="fas fa-trophy me-2"></i>Sport Popularity
+                        </a></li>
+                        <li><a class="dropdown-item" href="/perfect-attendance">
+                            <i class="fas fa-star me-2"></i>Perfect Attendance
+                        </a></li>
+                        <li><a class="dropdown-item" href="/low-attendance">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Low Attendance
+                        </a></li>
+                        <li><a class="dropdown-item" href="/staff-workload">
+                            <i class="fas fa-users-cog me-2"></i>Staff Workload
+                        </a></li>
+                        <li><a class="dropdown-item" href="/attendance-streaks">
+                            <i class="fas fa-solid fa-fire me-2"></i>Attendance Streaks
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/upload">
+                            <i class="fas fa-upload me-2"></i>Upload Data
+                        </a></li>
                             </ul>
                         </li>
                     {% elif user_type == 'student' %}

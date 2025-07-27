@@ -6,10 +6,10 @@ DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dataBase", "
 
 
 def daily_attendance_summary(year_ID):
-    #basically SUM counts how many were present/abscent that day so adds up all the '1' values
-    #Case WHEN is like an if condition so if it was 'present' then set the value to 1 (present) or else o (not present)
-    #AS present_count just sets it to like a variable ot make it easier ot reference and renames it
-    #CAST converts the date into an integer so its like ordered correctly
+    # basically SUM counts how many were present/abscent that day so adds up all the '1' values
+    # Case WHEN is like an if condition so if it was 'present' then set the value to 1 (present) or else o (not present)
+    # AS present_count just sets it to like a variable ot make it easier ot reference and renames it
+    # CAST converts the date into an integer so its like ordered correctly
     query = """
         SELECT 
             attendance_records.session_date AS formatted_date,
@@ -22,16 +22,25 @@ def daily_attendance_summary(year_ID):
             enrollments ON attendance_records.enrollment_id = enrollments.enrollment_id
         JOIN 
             students ON enrollments.student_id = students.student_id
-        WHERE 
-            students.year_group = ?
+    """
+
+    params = []
+
+    # Only add WHERE clause if year_ID is provided and not empty
+    if year_ID and year_ID.strip():
+        query += " WHERE students.year_group = ?"
+        params.append(year_ID)
+
+    query += """
         GROUP BY 
             attendance_records.session_date
         ORDER BY 
             attendance_records.session_date ASC
     """
+
     connection = sqlite3.connect(DB_PATH)
     cursor = connection.cursor()
-    cursor.execute(query, (year_ID,))
+    cursor.execute(query, params)
     results = cursor.fetchall()
     connection.close()
     return results
@@ -69,6 +78,26 @@ def activity_attendance(year_ID):
     results = cursor.fetchall()
     connection.close()
     return results
+
+
+def get_available_year_groups():
+    """Get unique year groups for dropdown filters"""
+    query = """
+    SELECT DISTINCT 
+        students.year_group 
+    FROM 
+        students 
+    ORDER BY 
+        students.year_group
+    """
+    # Get unique year groups from students table, ordered alphabetically
+    connection = sqlite3.connect(DB_PATH)
+    cursor = connection.cursor()
+    cursor.execute(query)
+    year_groups = [row[0] for row in cursor.fetchall()]
+
+    connection.close()
+    return ["All Years"] + year_groups #so that all years can be the default drop down
 
 
 def sport_attendance_by_year(year_ID):

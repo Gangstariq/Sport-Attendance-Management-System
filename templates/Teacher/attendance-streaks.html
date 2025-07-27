@@ -20,12 +20,26 @@
             <div class="search-card">
                 <h5>Filter by Year</h5>
                 <form method="POST" action="/attendance-streaks">
-                    <input type="text" class="form-control mb-2" name="year_filter" 
-                           placeholder="Enter Year (2024)" value="{{ year_filter }}">
+
+                    <!-- Dropdown button -->
+                    <select class="form-select mb-2" name="year_filter">
+                        <option value="">All Years</option>
+
+                        <!-- Loop through each available year -->
+                        {% for year in available_years %}
+                            <!-- Check if this year was selected by the user -->
+                            {% if year|string == year_filter %}
+                                <option value="{{ year }}" selected>{{ year }}</option>
+                            {% else %}
+                                <option value="{{ year }}">{{ year }}</option>
+                            {% endif %}
+                        {% endfor %}
+
+                    </select>
+
                     <button type="submit" class="btn btn-primary">
-                        Calculate Streaks
+                        <i class="fas fa-calculator me-1"></i>Calculate Streaks
                     </button>
-                    <br><small>Leave empty to show all years</small>
                 </form>
             </div>
         </div>
@@ -114,7 +128,7 @@
                             <tbody>
                                 {% for student in results %}
                                 <tr>
-                                    <td> <!-- "loop" is jinja2 method, loop.index thus gets index -->
+                                    <td> <!-- loop.index gets the index using the jinja2 thing -->
                                         {% if loop.index <= 3 %}
                                             <span class="badge bg-warning">🏆 {{ loop.index }}</span>
                                         {% else %}

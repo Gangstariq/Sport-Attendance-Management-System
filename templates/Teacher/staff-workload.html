@@ -20,29 +20,104 @@
             <div class="search-card">
                 <h5>Filter by Year</h5>
                 <form method="POST" action="/staff-workload">
-                    <input type="text" class="form-control mb-2" name="year_filter" 
-                           placeholder="Enter Year (2024)" value="{{ year_filter }}">
+
+                    <!-- Year Dropdown -->
+                    <select class="form-select mb-2" name="year_filter">
+                        <option value="All Years" {% if not year_filter %}selected{% endif %}>All Years</option>
+
+                        <!-- Loop through each available year -->
+                        {% for year in available_years %}
+                            <!-- Check if this year was selected by the user -->
+                            {% if year|string == year_filter %}
+                                <option value="{{ year }}" selected>{{ year }}</option>
+                            {% else %}
+                                <option value="{{ year }}">{{ year }}</option>
+                            {% endif %}
+                        {% endfor %}
+
+                    </select>
+
                     <button type="submit" class="btn btn-primary">
-                        Search
+                        <i class="fas fa-search me-1"></i>Analyse Staff Workload
                     </button>
-                    <br><small>Leave empty to show all years</small>
+                    <br><small class="text-muted">Select a specific year or "All Years" to show everyone</small>
                 </form>
             </div>
         </div>
-        
+
         <div class="col-md-6">
             <div class="search-card">
-                <h5>Generate Graph</h5>
-                <form method="POST" action="/staff-workload-graph">
-                    <input type="hidden" name="year_filter" value="{{ year_filter }}">
-                    <button type="submit" class="btn btn-success">
-                        Show Workload Graph
-                    </button>
-                    <br><small>See top staff workloads</small>
-                </form>
+                <h5>About This Analysis</h5>
+                <p class="mb-2"><strong>Total Sessions:</strong> Number of sessions each staff member managed</p>
+                <p class="mb-2"><strong>Unique Dates:</strong> Number of different days they worked</p>
+                <p class="mb-0"><strong>Teams Managed:</strong> Number of different teams they supervised</p>
             </div>
         </div>
     </div>
+
+    <!-- Summary Stats -->
+    {% if results %}
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-chalkboard-teacher fa-2x text-primary mb-2"></i>
+                    <h4 class="card-title">{{ unique_staff_count }}</h4>
+                    <p class="card-text">Unique Staff Members</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-clock fa-2x text-info mb-2"></i>
+                    <h4 class="card-title">{{ total_sessions }}</h4>
+                    <p class="card-text">Total Sessions</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-chart-line fa-2x text-warning mb-2"></i>
+                    <h4 class="card-title">{{ avg_sessions_per_staff }}</h4>
+                    <p class="card-text">Avg Sessions per Staff</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Graph Section -->
+    {% if graph_html %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>
+                        <i class="fas fa-chart-bar me-2"></i>Staff Workload Visualisation - Top 15 Staff
+                        {% if year_filter %}
+                            ({{ year_filter }})
+                        {% else %}
+                            (All Years)
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {{ graph_html|safe }}
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Showing the top 15 staff members by total sessions managed
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Results Table -->
     {% if results %}
@@ -50,16 +125,19 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3>Staff Workload Results
+                    <h3>
+                        <i class="fas fa-table me-2"></i>Staff Workload Details
                         {% if year_filter %}
                             - Year {{ year_filter }}
+                        {% else %}
+                            - All Years
                         {% endif %}
                     </h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
                         <table class="table table-striped">
-                            <thead class="table-dark">
+                            <thead class="table-dark sticky-top">
                                 <tr>
                                     <th>Staff Member</th>
                                     <th>Activity/Sport</th>
@@ -73,91 +151,59 @@
                             <tbody>
                                 {% for result in results %}
                                 <tr>
-                                    <td><strong>{{ result[0] }}</strong></td>
-                                    <td>{{ result[1] }}</td>
+                                    <td><strong>{{ result[0] }}</strong></td>  <!-- result[0] is staff_name -->
+                                    <td>{{ result[1] }}</td>  <!-- result[1] is activity -->
                                     <td>
-                                        {% if result[2] >= 0 %}
+                                        {% if result[2] >= 20 %}
+                                            <span class="badge bg-danger">{{ result[2] }} sessions</span>
+                                        {% elif result[2] >= 10 %}
+                                            <span class="badge bg-warning text-dark">{{ result[2] }} sessions</span>
+                                        {% else %}
                                             <span class="badge bg-info">{{ result[2] }} sessions</span>
                                         {% endif %}
-                                    </td>
-                                    <td>{{ result[3] }} days</td>
-                                    <td>{{ result[4] }} teams</td>
-                                    <td>{{ result[5] }}</td>
-                                    <td>{{ result[6] }}</td>
+                                    </td>  <!-- result[2] is total_sessions -->
+                                    <td>
+                                        <span class="badge bg-secondary">{{ result[3] }} days</span>
+                                    </td>  <!-- result[3] is unique_dates -->
+                                    <td>
+                                        <span class="badge bg-primary">{{ result[4] }} teams</span>
+                                    </td>  <!-- result[4] is teams_managed -->
+                                    <td>{{ result[5] }}</td>  <!-- result[5] is year -->
+                                    <td>Semester {{ result[6] }}</td>  <!-- result[6] is semester -->
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
-                    
+
 
                 </div>
             </div>
         </div>
     </div>
-    {% endif %}
 
-    <!-- Graph Section -->
-    {% if graph_html %}
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3>Staff Workload Visualisation</h3>
-                </div>
-                <div class="card-body">
-                    {{ graph_html|safe }}
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Summary Stats -->
-    {% if results %}
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card text-center">
-                <div class="card-body">
-                    <i class="fas fa-chalkboard-teacher fa-2x text-primary mb-2"></i>
-                    <h4 class="card-title">{{ unique_staff_count }}</h4>
-                    <p class="card-text">Unique Staff Member Count</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card text-center">
-                <div class="card-body">
-                    <i class="fas fa-clock fa-2x text-info mb-2"></i>
-                    <h4 class="card-title">{{ total_sessions }}</h4>
-                    <p class="card-text">Total Sessions</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card text-center">
-                <div class="card-body">
-                    <i class="fas fa-chart-line fa-2x text-warning mb-2"></i>
-                    <h4 class="card-title">{{ avg_sessions_per_staff }}</h4>
-                    <p class="card-text">Avg Sessions per Staff</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- No Results Message -->
-    {% if not results and request.method == 'POST' %}
+    {% elif request.method == 'POST' %}
+    <!-- No results message -->
     <div class="alert alert-warning">
-        <strong>No staff workload data found!</strong> 
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>No staff workload data found!</strong>
         {% if year_filter %}
-            Try using a different year or remove the year filter.
+            Try selecting "All Years" or using a different year.
         {% else %}
             No staff data available in the database.
         {% endif %}
     </div>
+
+    {% else %}
+    <!-- Initial message when page loads -->
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-users-cog fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">Select a Year</h4>
+            <p class="text-muted">Choose a year above to analyse staff workload distribution and generate visualisations.</p>
+        </div>
+    </div>
     {% endif %}
+
 </div>
 {% endblock %}

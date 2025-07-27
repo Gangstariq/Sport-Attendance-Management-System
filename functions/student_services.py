@@ -32,60 +32,45 @@ DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dataBase", "
 #     return results
 
 def students_attendance(student_ID):
-    """Get all attendance records for a specific student - DEBUG VERSION"""
+    """Get all attendance records for a specific student """
+    # Clean the input - remove any whitespace
+    student_ID = str(student_ID).strip()
 
-    print(f"DEBUG: Looking for student_ID = '{student_ID}' (type: {type(student_ID)})")
+    query = """
+        SELECT DISTINCT 
+            students.student_id, 
+            teams.team_name, 
+            activity, 
+            attendance_status, 
+            session_date
+        FROM 
+            students, 
+            attendance_records, 
+            enrollments, 
+            teams
+        WHERE 
+            students.student_id = enrollments.student_id
+        AND 
+            enrollments.team_id = teams.team_id
+        AND 
+            enrollments.enrollment_id = attendance_records.enrollment_id
+        AND 
+            students.student_id = ?
+        ORDER BY 
+            students.student_id, session_date, team_name, activity
+    """
+
 
     connection = sqlite3.connect(DB_PATH)
     cursor = connection.cursor()
-
-    # First, let's check if this student exists at all
-    cursor.execute("SELECT COUNT(*) FROM students WHERE student_id = ?", (student_ID,))
-    student_count = cursor.fetchone()[0]
-    print(f"DEBUG: Found {student_count} students with ID '{student_ID}'")
-
-    # Let's see some sample student IDs to compare
-    cursor.execute("SELECT DISTINCT student_id FROM students LIMIT 10")
-    sample_ids = cursor.fetchall()
-    print(f"DEBUG: Sample student IDs in database: {sample_ids}")
-
-    # Check if this student has any enrollments
-    cursor.execute("SELECT COUNT(*) FROM enrollments WHERE student_id = ?", (student_ID,))
-    enrollment_count = cursor.fetchone()[0]
-    print(f"DEBUG: Found {enrollment_count} enrollments for student '{student_ID}'")
-
-    # Now try the original query
-    query = """
-        SELECT DISTINCT students.student_id, teams.team_name, activity, attendance_status, session_date
-        FROM students, attendance_records, enrollments, teams
-        WHERE students.student_id == enrollments.student_id
-        AND enrollments.team_id == teams.team_id
-        AND enrollments.enrollment_id == attendance_records.enrollment_id
-        AND students.student_id = ?
-        order by students.student_id, session_date, team_name, activity
-    """
-
-    print(f"DEBUG: Executing main query...")
     cursor.execute(query, (student_ID,))
     results = cursor.fetchall()
-    print(f"DEBUG: Main query returned {len(results)} results")
-
-    # If no exact match found, try pattern matching
-    if not results:
-        print(f"DEBUG: No exact match, trying pattern matching...")
-        cursor.execute(query.replace("AND students.student_id = ?", "AND students.student_id LIKE ?"),
-                       (f"%{student_ID}%",))
-        results = cursor.fetchall()
-        print(f"DEBUG: Pattern matching returned {len(results)} results")
-
-    # Show first few results if any
-    if results:
-        print(f"DEBUG: First result: {results[0]}")
-    else:
-        print("DEBUG: No results found at all")
-
     connection.close()
+
     return results
+
+
+
 def get_student_dashboard_data(student_id):
     """
     Get all the data needed for a student's dashboard
@@ -136,7 +121,7 @@ def get_student_dashboard_data(student_id):
     present_sessions_all = sum(row[3] for row in results)
     overall_attendance = round((present_sessions_all / total_sessions_all * 100), 1) if total_sessions_all > 0 else 0
 
-    # Get the most recent sport (you might want to modify this logic)
+    # Get the most recent sport
     current_sport = results[0][1]  # First sport in the list
     student_name = results[0][0]
 

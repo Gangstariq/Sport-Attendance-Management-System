@@ -4,20 +4,23 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7c5038e-5449-4d4a-8500-bea8b3624c70" name="Changes" comment="-Different Nav Bar Based on different levels of users&#10;-Fixed up date displayed with too many characters">
-      <change afterPath="$PROJECT_DIR$/static/fonts/OpenDyslexic-Regular.otf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/Teacher/attendance-streaks.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/Teacher/team-attendance.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/Teacher/team-dashboard.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/settings.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="e7c5038e-5449-4d4a-8500-bea8b3624c70" name="Changes" comment="-Implemented Filtered Team view &#10;  -Can look at team based attendance&#10;-Reworked Teacher Dashboard">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/functions/student_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/functions/student_services.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/functions/teacher_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/functions/teacher_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/style.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Student access/student-dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Student access/student-dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Teacher/attendance-streaks.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/attendance-streaks.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Teacher/average-attendance-per-activity.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/average-attendance-per-activity.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Teacher/daily-attendance-dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/daily-attendance-dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Teacher/individual_student_attendance.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/individual_student_attendance.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Teacher/low-attendance.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/low-attendance.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Teacher/perfect-attendance.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/perfect-attendance.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Teacher/sport-popularity.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/sport-popularity.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Teacher/staff-workload.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/staff-workload.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/Teacher/teacher-dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Teacher/teacher-dashboard.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/upload.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/upload.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -180,7 +183,7 @@
       <workItem from="1753062799810" duration="19570000" />
       <workItem from="1753164921767" duration="6723000" />
       <workItem from="1753226923011" duration="19342000" />
-      <workItem from="1753599848495" duration="9253000" />
+      <workItem from="1753599848495" duration="19027000" />
     </task>
     <task id="LOCAL-00001" summary="Inital Commit">
       <option name="closed" value="true" />
@@ -310,7 +313,15 @@
       <option name="project" value="LOCAL" />
       <updated>1753194286444</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="-Implemented Filtered Team view &#10;  -Can look at team based attendance&#10;-Reworked Teacher Dashboard">
+      <option name="closed" value="true" />
+      <created>1753611402593</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1753611402593</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -342,7 +353,8 @@
     <MESSAGE value="-Fixed UI design for some pages - Scrollable tables&#10;-Search Individual student from table (JS)&#10;-" />
     <MESSAGE value="-Added a manifest json and service worker to make this a pwa" />
     <MESSAGE value="-Different Nav Bar Based on different levels of users&#10;-Fixed up date displayed with too many characters" />
-    <option name="LAST_COMMIT_MESSAGE" value="-Different Nav Bar Based on different levels of users&#10;-Fixed up date displayed with too many characters" />
+    <MESSAGE value="-Implemented Filtered Team view &#10;  -Can look at team based attendance&#10;-Reworked Teacher Dashboard" />
+    <option name="LAST_COMMIT_MESSAGE" value="-Implemented Filtered Team view &#10;  -Can look at team based attendance&#10;-Reworked Teacher Dashboard" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/DB_experiments$DB_experiments.coverage" NAME="DB experiments Coverage Results" MODIFIED="1740913494608" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
