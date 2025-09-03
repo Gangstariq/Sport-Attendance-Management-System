@@ -43,47 +43,47 @@ oidc = OpenIDConnect(app, prefix="/oidc/")
 
 
 
-DEMO_MODE = False
+DEMO_MODE = True
 
-# @app.context_processor
-# def inject_test_user_info(): #Only for testing bcause theres no actual teacher ID testing
-#     return {
-#         'is_logged_in': True,
-#         'user_type': 'teacher',  # Change to 'student' to test student navbar
-#         'user_name': 'Test Teacher',
-#
-#     }
-
-@app.context_processor #renders information which all templates can access as like context before doing anything
-def inject_user_info(): #function enables for different nav bars
-
-    # Check if user is logged in
-    is_logged_in = False
-    user_type = None
-    user_name = None
-    user_id = None
-
-    if oidc.user_loggedin:
-        is_logged_in = True
-        oidc_profile = session.get("oidc_auth_profile")
-
-        if oidc_profile:
-            # Check if it's a student (has student_id)
-            if "student_id" in oidc_profile:
-                user_type = "student"
-                user_id = oidc_profile.get('student_id')
-                user_name = oidc_profile.get('name', 'Student')
-            else:
-                # It's a teacher/staff
-                user_type = "teacher"
-                user_name = oidc_profile.get('name', 'Teacher')
-
+@app.context_processor
+def inject_test_user_info(): #Only for testing bcause theres no actual teacher ID testing
     return {
-        'is_logged_in': is_logged_in,
-        'user_type': user_type,
-        'user_name': user_name,
-        'user_id': user_id
+        'is_logged_in': True,
+        'user_type': 'teacher',  # Change to 'student' to test student navbar
+        'user_name': 'Test Teacher',
+
     }
+
+# @app.context_processor #renders information which all templates can access as like context before doing anything
+# def inject_user_info(): #function enables for different nav bars
+#
+#     # Check if user is logged in
+#     is_logged_in = False
+#     user_type = None
+#     user_name = None
+#     user_id = None
+#
+#     if oidc.user_loggedin:
+#         is_logged_in = True
+#         oidc_profile = session.get("oidc_auth_profile")
+#
+#         if oidc_profile:
+#             # Check if it's a student (has student_id)
+#             if "student_id" in oidc_profile:
+#                 user_type = "student"
+#                 user_id = oidc_profile.get('student_id')
+#                 user_name = oidc_profile.get('name', 'Student')
+#             else:
+#                 # It's a teacher/staff
+#                 user_type = "teacher"
+#                 user_name = oidc_profile.get('name', 'Teacher')
+#
+#     return {
+#         'is_logged_in': is_logged_in,
+#         'user_type': user_type,
+#         'user_name': user_name,
+#         'user_id': user_id
+#     }
 
 
 #Functions NOT related to routing
@@ -555,7 +555,7 @@ def individual_student_attendance():
                     'percentage': attendance_percentage
                 }
 
-                # Get unique activities using basic loops
+                # Get unique activities
                 unique_activities = []
                 for result in results:
                     activity = result[2]
@@ -563,7 +563,7 @@ def individual_student_attendance():
                         unique_activities.append(activity)
                 unique_activities.sort()
 
-                # Get date range using basic loops
+                # Get date range using
                 if results:
                     dates = []
                     for result in results:
